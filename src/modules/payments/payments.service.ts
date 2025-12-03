@@ -253,6 +253,9 @@ export const makeCardPayment = async (userId, input) => {
     }, 'Payment successful');
 };
 export const saveIosPayment = async (userId, input) => {
+    const user = await getUser(userId);
+    if (!user)
+        throw new apiError(404, 'User not found');
     const redemption = await calculateRedemption(userId, input.pointsToRedeem, input.amount, input.products);
     const payableAmount = redemption.payableAmount;
     if (payableAmount <= 0 && (!redemption.pointsRedeemed || redemption.pointsRedeemed <= 0)) {
