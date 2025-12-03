@@ -278,13 +278,14 @@ export const resendOtp = async (userId, input) => {
     return ok(expose ? { otp } : null, 'OTP resent');
 };
 export const logoutUser = async (userId) => {
-    const user = await partialUpdateUser(userId, {
+    const user = await getUserById(userId);
+    if (!user)
+        throw new apiError(404, 'User not found');
+    await partialUpdateUser(userId, {
         deviceToken: null,
         deviceType: null,
         updatedAt: new Date().toISOString()
     });
-    if (!user)
-        throw new apiError(400, 'Logout failed');
     return ok(null, 'Logout successfully');
 };
 export const refreshSession = async (token) => {
