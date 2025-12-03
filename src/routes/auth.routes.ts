@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { handleLogin, handleLogout, handleRefreshToken, handleRegister, handleResendOtp, handleVerifyOtp } from '../modules/auth/auth.controller.js';
+import { requireAuth } from '../middleware/auth.js';
+const router = Router();
+router.post('/register', handleRegister);
+router.post('/login', handleLogin);
+router.post('/verify', requireAuth, handleVerifyOtp);
+router.post('/resend', requireAuth, handleResendOtp);
+router.post('/logout', requireAuth, handleLogout);
+router.post('/refresh', handleRefreshToken);
+export default router;

@@ -1,0 +1,8 @@
+{% extends "layouts/base.njk" %}
+
+{% block content %}
+  <div class="admin-wrapper">
+    {% include "partials/flash.njk" %}
+    {% block auth_content %}{% endblock %}
+  </div>
+{% endblock %}

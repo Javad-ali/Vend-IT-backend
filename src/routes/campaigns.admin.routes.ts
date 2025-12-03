@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { campaignUploadMiddleware, handleCreateCampaign, handleDeleteCampaign, handleUpdateCampaign, renderCampaignForm, renderCampaignList } from '../modules/campaigns/campaigns.admin.controller.js';
+import { loadCampaign } from '../modules/campaigns/campaigns.admin.middleware.js';
+const router = Router();
+router.get('/', renderCampaignList);
+router.get('/create', renderCampaignForm);
+router.post('/create', campaignUploadMiddleware, handleCreateCampaign);
+router.get('/:campaignId/edit', loadCampaign, renderCampaignForm);
+router.post('/:campaignId/edit', loadCampaign, campaignUploadMiddleware, handleUpdateCampaign);
+router.post('/:campaignId/delete', handleDeleteCampaign);
+export default router;

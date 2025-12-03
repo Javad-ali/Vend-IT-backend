@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+.npmrc
+.env
+dist
+.DS_Store
+coverage
+vitest.config.ts.timestamp*

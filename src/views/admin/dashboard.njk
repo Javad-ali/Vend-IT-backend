@@ -1,0 +1,27 @@
+{% extends "layouts/auth.njk" %}
+
+{% block auth_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xl-4 mt-2">
+      <div class="p-4 card-animate">
+        <h3>Revenue</h3>
+        <h2>$ {{ revenue | default(0) }}</h2>
+      </div>
+    </div>
+    <div class="col-xl-4 mt-2">
+      <div class="p-4 card-animate">
+        <h3>Total users</h3>
+        <h2>{{ totalUsers }}</h2>
+      </div>
+    </div>
+    <div class="col-xl-4 mt-2">
+      <div class="p-4 card-animate">
+        <h3>Total active users</h3>
+        <h2>{{ activeUsers }}</h2>
+      </div>
+    </div>
+  </div>
+  <!-- continue replicating Blade markup with Njk syntax -->
+</div>
+{% endblock %}

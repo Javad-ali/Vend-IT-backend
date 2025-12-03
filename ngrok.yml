@@ -1,0 +1,15 @@
+version: "3"
+
+authtoken: ${NGROK_AUTHTOKEN}
+region: eu
+metadata: "Vend-IT local dev tunnel"
+
+tunnels:
+  vendit:
+    addr: 3000
+    proto: http
+    schemes:
+      - https
+    host_header: rewrite
+    inspect: true
+    compression: true
