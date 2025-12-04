@@ -13,3 +13,9 @@ tunnels:
     host_header: rewrite
     inspect: true
     compression: true
+# version: "3"
+
+# tunnels:
+#   vendit:
+#     proto: http
+#     addr: 3000

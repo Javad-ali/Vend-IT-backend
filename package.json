@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "migrate": "tsx scripts/migrate.ts",
     "seed": "tsx scripts/seed.ts",
-    "tunnel": "ngrok start --config ngrok.yml vendit"
+    "tunnel": "ngrok http 4000"
   },
   "dependencies": {
     "@sentry/node": "^10.28.0",
