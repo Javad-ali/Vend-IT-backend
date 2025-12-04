@@ -11,6 +11,7 @@ import session from 'express-session';
 import { errorHandler } from './middleware/error-handler.js';
 import { defaultLimiter } from './middleware/rate-limiters.js';
 import { requestLogger } from './middleware/request-logger.js';
+import { performanceMiddleware } from './middleware/performance.js';
 import { metricsMiddleware } from './middleware/metrics.js';
 import routes from './routes/index.js';
 import metricsRoutes from './routes/metrics.routes.js';
@@ -130,6 +131,10 @@ app.use(express.json({ limit: '2mb', verify: captureRawBody }));
 app.use(express.urlencoded({ extended: true, verify: captureRawBody }));
 // Add structured request/response logging
 app.use(requestLogger);
+
+// Add performance monitoring (after logger)
+app.use(performanceMiddleware);
+
 app.use(morgan('combined'));
 app.use('/assets', express.static(path.join(process.cwd(), 'src/public/Assets')));
 app.use(session({
