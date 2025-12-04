@@ -1,7 +1,9 @@
 // Vend-IT-backend/tsconfig.json
+// NOTE: Strict mode is partially enabled. Run `npm run typecheck` to see remaining issues.
+// Goal: Gradually enable full strict mode by fixing implicit any types.
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Node",
     "outDir": "./dist",
@@ -12,7 +14,8 @@
       "@libs/*": ["src/libs/*"],
       "@modules/*": ["src/modules/*"],
       "@routes/*": ["src/routes/*"],
-      "@utils/*": ["src/utils/*"]
+      "@utils/*": ["src/utils/*"],
+      "@types/*": ["src/types/*"]
     },
     "jsx": "react-jsx",
     "esModuleInterop": true,
@@ -20,9 +23,22 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"],
+    // Strict mode settings - gradually enabling
     "strict": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": false,
+    // Code quality
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src", "scripts", "tests"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "node_modules"]
 }
