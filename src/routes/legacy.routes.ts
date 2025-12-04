@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { handleLogin, handleLogout, handleRefreshToken, handleRegister, handleResendOtp, handleVerifyOtp } from '../modules/auth/auth.controller.js';
 import { handleCreateProfile, handleDeleteAccount, handleEditProfile, handleGetProfile, handleReferralInfo, uploadAvatar } from '../modules/users/users.controller.js';
@@ -12,6 +13,7 @@ import { handleLatestCampaign } from '../modules/campaigns/campaigns.controller.
 import { requireAuth } from '../middleware/auth.js';
 import { getMachineDetail } from '../modules/machines/machines.service.js';
 import { ok } from '../utils/response.js';
+
 const router = Router();
 const legacyUpload = multer();
 // Auth
@@ -34,23 +36,24 @@ router.get('/users/referral/info', requireAuth, handleReferralInfo);
 // Campaign
 router.get('/users/campagin', requireAuth, handleLatestCampaign);
 // Machines & products
-const normalizeMachineIdQuery = (req, _res, next) => {
+const normalizeMachineIdQuery = (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.query.machineId && req.query.machine_id) {
         req.query.machineId = String(req.query.machine_id);
     }
     next();
 };
 router.get('/users/machine/list', requireAuth, handleListMachines);
-router.get('/users/machine/details', requireAuth, async (req, res, next) => {
+router.get('/users/machine/details', requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const query = req.query as any;
-        const params = req.params as any;
+        const query = req.query as Record<string, string | undefined>;
+        const params = req.params as Record<string, string | undefined>;
         const machineId = String(query.machineId ?? query.machine_id ?? query.id ?? params.machineId ?? '');
         if (!machineId) {
-            return res.status(400).json({ status: 400, message: 'machineId query param is required' });
+            res.status(400).json({ status: 400, message: 'machineId query param is required' });
+            return;
         }
         const detail = await getMachineDetail(machineId);
-        return res.json(ok(detail, 'Machine detail'));
+        res.json(ok(detail, 'Machine detail'));
     }
     catch (error) {
         next(error);

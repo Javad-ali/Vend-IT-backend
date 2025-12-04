@@ -9,16 +9,41 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import session from 'express-session';
 import { errorHandler } from './middleware/error-handler.js';
-import { rateLimiter } from './middleware/rate-limit.js';
+import { defaultLimiter } from './middleware/rate-limiters.js';
 import { requestLogger } from './middleware/request-logger.js';
 import routes from './routes/index.js';
 import { getConfig } from './config/env.js';
 import { flash } from './middleware/flash.js';
 import adminRoutes from './routes/admin.routes.js';
 import adminAuthRoutes from './routes/admin.auth.routes.js';
+import { logger } from './config/logger.js';
+
 const app = express();
 const config = getConfig();
 const require = createRequire(import.meta.url);
+
+// Configure allowed CORS origins
+const getAllowedOrigins = (): string[] | string => {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS;
+  
+  // In development, allow all origins if not specified
+  if (config.nodeEnv === 'development' && !allowedOrigins) {
+    return '*';
+  }
+  
+  // Parse comma-separated origins
+  if (allowedOrigins) {
+    return allowedOrigins.split(',').map(origin => origin.trim()).filter(Boolean);
+  }
+  
+  // Production default: no wildcard, must be explicitly configured
+  if (config.nodeEnv === 'production') {
+    logger.warn('ALLOWED_ORIGINS not configured in production - CORS will reject all cross-origin requests');
+    return [];
+  }
+  
+  return '*';
+};
 // Allow Express to honor X-Forwarded-* headers when traffic comes through
 // local proxies (ngrok/localhost); still restrict trust to loopback ranges
 // so rate limiting cannot be bypassed from arbitrary IPs.
@@ -65,12 +90,24 @@ nunjucksEnv.addFilter('date', (value, format = 'yyyy-MM-dd HH:mm') => {
 });
 app.set('view engine', 'njk');
 app.set('views', path.join(process.cwd(), 'src/views'));
-app.use(helmet());
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: config.nodeEnv === 'production' ? undefined : false,
+  crossOriginEmbedderPolicy: false
 }));
-app.use(rateLimiter);
+
+// CORS configuration
+const allowedOrigins = getAllowedOrigins();
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  credentials: true,
+  maxAge: 86400 // 24 hours
+}));
+
+// Default rate limiter
+app.use(defaultLimiter);
 app.use(compression());
 const captureRawBody = (req, _res, buf) => {
     req.rawBody = Buffer.from(buf);

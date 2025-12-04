@@ -1,17 +1,13 @@
-// import { Response } from 'express';
-// type Payload<T> = {
-//   status: number;
-//   message?: string;
-//   data?: T;
-//   meta?: Record<string, unknown>;
-// };
-// export const sendJson = <T>(res: Response, payload: Payload<T>) =>
-//   res.status(payload.status).json({
-//     status: payload.status,
-//     message: payload.message,
-//     data: payload.data,
-//     meta: payload.meta
-//   });
+/**
+ * API Response Utilities
+ * 
+ * Standardized response formats for the Vend-IT API.
+ */
+import type { ApiResponse } from '../types/entities.js';
+
+/**
+ * Custom API Error class for consistent error handling
+ */
 export class apiError extends Error {
     statusCode: number;
     details: any;
@@ -28,13 +24,50 @@ export class apiError extends Error {
         };
     }
 }
-export const ok = (data, message = 'OK') => ({
-    status: 200,
-    message,
-    data
+/**
+ * Create a success response (200 OK)
+ */
+export const ok = <T>(data: T, message = 'OK'): ApiResponse<T> => ({
+  status: 200,
+  message,
+  data
 });
-export const created = (data, message = 'Created') => ({
-    status: 201,
-    message,
-    data
+
+/**
+ * Create a created response (201 Created)
+ */
+export const created = <T>(data: T, message = 'Created'): ApiResponse<T> => ({
+  status: 201,
+  message,
+  data
+});
+
+/**
+ * Create a no content response (204)
+ */
+export const noContent = (): ApiResponse<null> => ({
+  status: 204,
+  message: 'No Content',
+  data: null
+});
+
+/**
+ * Create a paginated response
+ */
+export const paginated = <T>(
+  data: T[],
+  page: number,
+  limit: number,
+  total: number,
+  message = 'OK'
+): ApiResponse<T[]> => ({
+  status: 200,
+  message,
+  data,
+  meta: {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit)
+  }
 });

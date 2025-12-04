@@ -1,73 +1,9 @@
-// import { config } from 'dotenv';
-// import { existsSync } from 'node:fs';
-// import path from 'node:path';
-// import { URL } from 'node:url';
-// const loadEnvFile = (filename: string) => {
-//   const filePath = path.join(process.cwd(), filename);
-//   if (existsSync(filePath)) {
-//     config({ path: filePath, override: false });
-//   }
-// };
-// loadEnvFile('.env');
-// loadEnvFile('.env.local');
-// if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.SUPABASE_ANON_KEY) {
-//   loadEnvFile('.env.sample');
-// }
-// type Env = {
-//   nodeEnv: 'development' | 'test' | 'production';
-//   port: number;
-//   appUrl: string;
-//   supabaseUrl: string;
-//   supabaseServiceRoleKey: string;
-//   supabaseAnonKey: string;
-//   redisUrl: string;
-//   jwtSecret: string;
-//   jwtExpiresIn: string;
-//   cookieSecret: string;
-//   emailFrom: string;
-//   ngrokToken?: string;
-// };
-// const required = (value: string | undefined, key: keyof Env) => {
-//   if (!value) {
-//     throw new Error(`Missing environment variable ${key}`);
-//   }
-//   return value;
-// };
-// const nodeEnv = (process.env.NODE_ENV ?? 'development') as Env['nodeEnv'];
-// const port = Number(process.env.PORT ?? 4000);
-// const appUrl = process.env.APP_URL ?? (nodeEnv === 'production' ? undefined : `http://localhost:${port}`);
-// const normalizeRedisUrl = (url: string | undefined) => {
-//   if (!url) return url;
-//   if (nodeEnv !== 'production') {
-//     try {
-//       const parsed = new URL(url);
-//       if (parsed.hostname === 'redis') {
-//         parsed.hostname = '127.0.0.1';
-//         return parsed.toString();
-//       }
-//     } catch (error) {
-//       // Ignore parse errors and fall back to provided url
-//     }
-//   }
-//   return url;
-// };
-// const redisUrl = normalizeRedisUrl(
-//   process.env.REDIS_URL ?? (nodeEnv === 'production' ? undefined : 'memory://local')
-// );
-// export const env: Env = {
-//   nodeEnv,
-//   port,
-//   appUrl: required(appUrl, 'appUrl'),
-//   supabaseUrl: required(process.env.SUPABASE_URL, 'supabaseUrl'),
-//   supabaseServiceRoleKey: required(process.env.SUPABASE_SERVICE_ROLE_KEY, 'supabaseServiceRoleKey'),
-//   supabaseAnonKey: required(process.env.SUPABASE_ANON_KEY, 'supabaseAnonKey'),
-//   redisUrl: required(redisUrl, 'redisUrl'),
-//   jwtSecret: required(process.env.JWT_SECRET, 'jwtSecret'),
-//   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
-//   cookieSecret: required(process.env.COOKIE_SECRET, 'cookieSecret'),
-//   emailFrom: required(process.env.EMAIL_FROM, 'emailFrom'),
-//   ngrokToken: process.env.NGROK_AUTHTOKEN
-// };
+/**
+ * Environment Configuration
+ * 
+ * Validates and provides typed access to environment variables.
+ * Uses Zod for runtime validation with sensible defaults for development/test.
+ */
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 const normalizeRedisUrl = (url, nodeEnv) => {
