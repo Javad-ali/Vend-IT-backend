@@ -1,25 +1,32 @@
 import { redis } from './redis.js';
 import { logger } from '../config/logger.js';
+
 const DEFAULT_TTL = 300; // 5 minutes
 const DEFAULT_PREFIX = 'cache';
+
+interface CacheOptions {
+  prefix?: string;
+  ttl?: number;
+}
+
 /**
  * Generate a cache key with optional prefix
  */
-const getCacheKey = (key, prefix) => {
+const getCacheKey = (key: string, prefix?: string): string => {
     const actualPrefix = prefix || DEFAULT_PREFIX;
     return `${actualPrefix}:${key}`;
 };
 /**
  * Get a value from cache
  */
-export const cacheGet = async (key, options) => {
+export const cacheGet = async <T = any>(key: string, options?: CacheOptions): Promise<T | null> => {
     try {
         const cacheKey = getCacheKey(key, options?.prefix);
         const value = await redis.get(cacheKey);
         if (!value) {
             return null;
         }
-        return JSON.parse(value);
+        return JSON.parse(value) as T;
     }
     catch (error) {
         logger.warn({ error, key }, 'Cache get failed');
@@ -29,7 +36,7 @@ export const cacheGet = async (key, options) => {
 /**
  * Set a value in cache with TTL
  */
-export const cacheSet = async (key, value, options) => {
+export const cacheSet = async (key: string, value: any, options?: CacheOptions): Promise<boolean> => {
     try {
         const cacheKey = getCacheKey(key, options?.prefix);
         const ttl = options?.ttl || DEFAULT_TTL;
@@ -45,7 +52,7 @@ export const cacheSet = async (key, value, options) => {
 /**
  * Delete a value from cache
  */
-export const cacheDel = async (key, options) => {
+export const cacheDel = async (key: string, options?: CacheOptions): Promise<boolean> => {
     try {
         const cacheKey = getCacheKey(key, options?.prefix);
         await redis.del(cacheKey);
@@ -59,7 +66,7 @@ export const cacheDel = async (key, options) => {
 /**
  * Delete multiple keys matching a pattern
  */
-export const cacheDelPattern = async (pattern, options) => {
+export const cacheDelPattern = async (pattern: string, options?: CacheOptions): Promise<number> => {
     try {
         const prefix = options?.prefix || DEFAULT_PREFIX;
         const fullPattern = `${prefix}:${pattern}`;
@@ -78,9 +85,9 @@ export const cacheDelPattern = async (pattern, options) => {
 /**
  * Wrapper function to cache the result of an async function
  */
-export const cacheWrap = async (key, fn, options) => {
+export const cacheWrap = async <T = any>(key: string, fn: () => Promise<T>, options?: CacheOptions): Promise<T> => {
     // Try to get from cache first
-    const cached = await cacheGet(key, options);
+    const cached = await cacheGet<T>(key, options);
     if (cached !== null) {
         logger.debug({ key }, 'Cache hit');
         return cached;
@@ -96,11 +103,11 @@ export const cacheWrap = async (key, fn, options) => {
  * Cache key generators for common patterns
  */
 export const CacheKeys = {
-    products: (machineId, categoryId) => categoryId ? `products:${machineId}:${categoryId}` : `products:${machineId}`,
-    categories: (machineId) => `categories:${machineId}`,
-    machine: (machineId) => `machine:${machineId}`,
-    machines: (lat, lng, radius) => `machines:${lat.toFixed(4)}:${lng.toFixed(4)}:${radius}`,
-    productDetail: (productId) => `product:${productId}`,
+    products: (machineId: string, categoryId?: string): string => categoryId ? `products:${machineId}:${categoryId}` : `products:${machineId}`,
+    categories: (machineId: string): string => `categories:${machineId}`,
+    machine: (machineId: string): string => `machine:${machineId}`,
+    machines: (lat: number, lng: number, radius: number): string => `machines:${lat.toFixed(4)}:${lng.toFixed(4)}:${radius}`,
+    productDetail: (productId: string): string => `product:${productId}`,
 };
 /**
  * Cache TTL constants (in seconds)

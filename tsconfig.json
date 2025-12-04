@@ -23,9 +23,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"],
-    // Strict mode settings - gradually enabling
+    //Strict mode settings - Incremental improvement
+    // Phase 1 attempted: noImplicitAny revealed 634 errors across 66 files
+    // Strategy: Fix critical libs first (✅ cache, queue, redis fixed), then modules gradually
     "strict": false,
-    "noImplicitAny": false,
+    "noImplicitAny": false,  // TODO: Re-enable after fixing module files
     "strictNullChecks": false,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,

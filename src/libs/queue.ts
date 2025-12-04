@@ -7,7 +7,7 @@ const config = getConfig();
 const connection = {
     host: config.redisUrl?.replace('redis://', '').split(':')[0] || 'localhost',
     port: parseInt(config.redisUrl?.split(':')[2] || '6379'),
-    maxRetriesPerRequest: null
+    maxRetriesPerRequest: null as null
 };
 // Create queues
 export const notificationQueue = new Queue('notifications', {
@@ -57,7 +57,7 @@ paymentQueue.on('error', (error) => {
     logger.error({ error }, 'Payment queue error');
 });
 // Helper functions to add jobs
-export const queueNotification = async (data) => {
+export const queueNotification = async (data: any) => {
     try {
         const job = await notificationQueue.add('send-notification', data);
         logger.info({ jobId: job.id, userId: data.userId }, 'Notification job queued');
@@ -68,7 +68,7 @@ export const queueNotification = async (data) => {
         throw error;
     }
 };
-export const queueMachineSync = async (data) => {
+export const queueMachineSync = async (data: any) => {
     try {
         const job = await machineSyncQueue.add('sync-machine', data);
         logger.info({ jobId: job.id, machineId: data.machineId }, 'Machine sync job queued');
@@ -79,7 +79,7 @@ export const queueMachineSync = async (data) => {
         throw error;
     }
 };
-export const queuePaymentProcess = async (data) => {
+export const queuePaymentProcess = async (data: any) => {
     try {
         const job = await paymentQueue.add('process-payment', data);
         logger.info({ jobId: job.id, paymentId: data.paymentId }, 'Payment process job queued');
