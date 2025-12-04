@@ -11,6 +11,7 @@ import session from 'express-session';
 import { errorHandler } from './middleware/error-handler.js';
 import { defaultLimiter } from './middleware/rate-limiters.js';
 import { requestLogger } from './middleware/request-logger.js';
+import { correlationIdMiddleware } from './middleware/correlation-id.js';
 import { performanceMiddleware } from './middleware/performance.js';
 import { metricsMiddleware } from './middleware/metrics.js';
 import routes from './routes/index.js';
@@ -129,6 +130,10 @@ const captureRawBody = (req, _res, buf) => {
 };
 app.use(express.json({ limit: '2mb', verify: captureRawBody }));
 app.use(express.urlencoded({ extended: true, verify: captureRawBody }));
+
+// Add correlation ID (must be early)
+app.use(correlationIdMiddleware);
+
 // Add structured request/response logging
 app.use(requestLogger);
 

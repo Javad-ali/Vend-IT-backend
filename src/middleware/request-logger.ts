@@ -1,36 +1,36 @@
+import type { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger.js';
+import { getCorrelationId } from './correlation-id.js';
+
 // Simple request logger using existing pino logger
-export const requestLogger = (req, res, next) => {
+export const requestLogger = (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     // Skip logging for health checks and static assets
     const excludePaths = ['/api/health', '/assets'];
-    const shouldSkip = excludePaths.some((path) => req.url?.startsWith(path));
-    if (shouldSkip) {
+    if (excludePaths.some(path => req.path.startsWith(path))) {
         return next();
     }
     // Log request
     logger.info({
+        correlationId: getCorrelationId(req),
         request: {
             method: req.method,
             url: req.url,
-            query: req.query,
-            headers: {
-                host: req.headers.host,
-                'user-agent': req.headers['user-agent']
-            },
-            remoteAddress: req.socket?.remoteAddress
+            userAgent: req.get('user-agent'),
+            ip: req.ip
         }
     }, `${req.method} ${req.url}`);
-    // Capture response
+    // Override res.send to log response
     const originalSend = res.send;
     res.send = function (data) {
         const duration = Date.now() - start;
         logger.info({
+            correlationId: getCorrelationId(req),
             response: {
                 statusCode: res.statusCode,
                 duration
             }
-        }, `${req.method} ${req.url} ${res.statusCode} - ${duration}ms`);
+        }, `${req.method} ${req.url} - ${res.statusCode} (${duration}ms)`);
         return originalSend.call(this, data);
     };
     next();
