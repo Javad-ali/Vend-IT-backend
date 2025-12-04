@@ -11,16 +11,22 @@ import session from 'express-session';
 import { errorHandler } from './middleware/error-handler.js';
 import { defaultLimiter } from './middleware/rate-limiters.js';
 import { requestLogger } from './middleware/request-logger.js';
+import { metricsMiddleware } from './middleware/metrics.js';
 import routes from './routes/index.js';
+import metricsRoutes from './routes/metrics.routes.js';
 import { getConfig } from './config/env.js';
 import { flash } from './middleware/flash.js';
 import adminRoutes from './routes/admin.routes.js';
 import adminAuthRoutes from './routes/admin.auth.routes.js';
 import { logger } from './config/logger.js';
+import { initSentry, Sentry } from './libs/sentry.js';
 
 const app = express();
 const config = getConfig();
 const require = createRequire(import.meta.url);
+
+// Initialize Sentry (must be first)
+initSentry(app);
 
 // Configure allowed CORS origins
 const getAllowedOrigins = (): string[] | string => {
@@ -90,6 +96,14 @@ nunjucksEnv.addFilter('date', (value, format = 'yyyy-MM-dd HH:mm') => {
 });
 app.set('view engine', 'njk');
 app.set('views', path.join(process.cwd(), 'src/views'));
+// Sentry request handler (must be first middleware)
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.expressErrorHandler());
+}
+
+// Metrics middleware (early to capture all requests)
+app.use(metricsMiddleware);
+
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: config.nodeEnv === 'production' ? undefined : false,
@@ -129,8 +143,13 @@ app.use(session({
     }
 }));
 app.use(flash);
+
+// Expose metrics endpoint
+app.use('/metrics', metricsRoutes);
+
 app.use('/api', routes);
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', adminRoutes);
+
 app.use(errorHandler);
 export default app;
