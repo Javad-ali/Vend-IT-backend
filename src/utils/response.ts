@@ -24,6 +24,25 @@ export class apiError extends Error {
         };
     }
 }
+
+/**
+ * Create an error response for JSON APIs
+ */
+export const errorResponse = (statusCode: number, message: string, details: any = null) => ({
+  status: statusCode,
+  message,
+  details
+});
+
+/**
+ * Create a generic success response
+ */
+export const apiSuccess = <T>(data: T | null = null, message = 'Success'): ApiResponse<T> => ({
+  status: 200,
+  message,
+  data: data as T
+});
+
 /**
  * Create a success response (200 OK)
  */

@@ -1,0 +1,85 @@
+import type { Request, Response } from 'express';
+import multer from 'multer';
+import { apiSuccess, apiError, errorResponse } from '../../utils/response.js';
+import { createCampaignWithMedia, fetchAllCampaigns, removeCampaign, updateCampaignWithMedia } from '../campaigns/campaigns.service.js';
+
+const upload = multer({ storage: multer.memoryStorage() });
+export const campaignUploadMiddleware = upload.single('image');
+
+/**
+ * API: Get all campaigns
+ */
+export const getCampaignsApi = async (_req: Request, res: Response) => {
+  try {
+    const campaigns = await fetchAllCampaigns();
+    return res.json(apiSuccess({ campaigns }));
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json(
+      errorResponse(statusCode, error.message || 'Failed to fetch campaigns')
+    );
+  }
+};
+
+/**
+ * API: Create campaign
+ */
+export const createCampaignApi = async (req: Request, res: Response) => {
+  try {
+    const campaign = await createCampaignWithMedia({
+      title: req.body.title,
+      description: req.body.description,
+      startAt: req.body.startAt,
+      endAt: req.body.endAt,
+      file: req.file ?? undefined
+    });
+    return res.status(201).json(
+      apiSuccess({ campaign }, 'Campaign created successfully')
+    );
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json(
+      errorResponse(statusCode, error.message || 'Failed to create campaign')
+    );
+  }
+};
+
+/**
+ * API: Update campaign
+ */
+export const updateCampaignApi = async (req: Request, res: Response) => {
+  try {
+    const campaign = await updateCampaignWithMedia(req.params.campaignId, {
+      title: req.body.title,
+      description: req.body.description,
+      startAt: req.body.startAt,
+      endAt: req.body.endAt,
+      file: req.file ?? undefined
+    });
+    return res.json(
+      apiSuccess({ campaign }, 'Campaign updated successfully')
+    );
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json(
+      errorResponse(statusCode, error.message || 'Failed to update campaign')
+    );
+  }
+};
+
+/**
+ * API: Delete campaign
+ */
+export const deleteCampaignApi = async (req: Request, res: Response) => {
+  try {
+    await removeCampaign(req.params.campaignId);
+    return res.json(
+      apiSuccess(null, 'Campaign deleted successfully')
+    );
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json(
+      errorResponse(statusCode, error.message || 'Failed to delete campaign')
+    );
+  }
+};

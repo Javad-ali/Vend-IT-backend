@@ -3,13 +3,23 @@ import { supabase } from '../../libs/supabase.js';
 import { apiError, ok } from '../../utils/response.js';
 import { getProductById, listCategoriesForMachine, listProductsForMachine } from './products.repository.js';
 import { getConfig } from '../../config/env.js';
+import { cacheWrap, CacheKeys, CacheTTL } from '../../libs/cache.js';
+import { logger } from '../../config/logger.js';
+
 const { remoteMachineBaseUrl, remoteMachineApiKey, remoteMachinePageSize } = getConfig();
 const client = axios.create({
     baseURL: remoteMachineBaseUrl,
     headers: { apikey: remoteMachineApiKey }
 });
 export const getCategories = async (machineUId) => {
-    const categories = await listCategoriesForMachine(machineUId);
+    // Use cache wrapper for categories
+    const categories = await cacheWrap(
+        CacheKeys.categories(machineUId),
+        () => listCategoriesForMachine(machineUId),
+        { ttl: CacheTTL.LONG } // 1 hour - categories change infrequently
+    );
+    
+    logger.debug({ machineUId, count: categories.length }, 'Categories retrieved');
     return ok(categories, 'Categories found');
 };
 const fetchRemoteProduct = async (productId) => {
@@ -71,7 +81,18 @@ const buildProductProperties = (metadata, remote) => {
     return properties;
 };
 export const getProducts = async (machineUId, categoryId) => {
-    const slots = await listProductsForMachine(machineUId);
+    // Determine cache key based on category
+    const cacheKey = categoryId 
+        ? CacheKeys.products(machineUId, categoryId)
+        : CacheKeys.products(machineUId);
+    
+    // Cache the entire product list per machine first
+    const slots = await cacheWrap(
+        CacheKeys.products(machineUId),
+        () => listProductsForMachine(machineUId),
+        { ttl: CacheTTL.MEDIUM } // 30 minutes
+    );
+    
     const normalizedCategory = categoryId?.trim().toLowerCase();
     const isAllCategory = !categoryId ||
         normalizedCategory === 'all' ||
@@ -84,8 +105,26 @@ export const getProducts = async (machineUId, categoryId) => {
             return true;
         return String(slot.product.category_id) === categoryId;
     });
-    if (!filtered.length) {
-        filtered = slots.filter(slot => Boolean(slot.product));
+    const remoteProductIdSet = new Set(filtered.map(slot => slot.product?.product_u_id).filter(Boolean));
+    if (remoteProductIdSet.size > 0) {
+        const remoteLookup = new Map();
+        await Promise.all(Array.from(remoteProductIdSet).map(async (productId) => {
+            try {
+                const remoteData = await fetchRemoteProduct(productId);
+                if (remoteData)
+                    remoteLookup.set(productId, remoteData);
+            }
+            catch {
+                // Ignore errors from remote fetch
+            }
+        }));
+        filtered = filtered.map(slot => {
+            const remoteData = remoteLookup.get(slot.product?.product_u_id);
+            if (remoteData) {
+                return { ...slot, remoteData };
+            }
+            return slot;
+        });
     }
     const mapped = filtered.map(slot => {
         const product = slot.product;
@@ -107,6 +146,8 @@ export const getProducts = async (machineUId, categoryId) => {
                 : null
         };
     });
+    
+    logger.debug({ machineUId, categoryId, count: mapped.length }, 'Products retrieved');
     return ok(mapped, 'Products found');
 };
 // export const searchProducts = async (machineUId: string, searchTerm: string) => {

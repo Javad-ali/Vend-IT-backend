@@ -13,6 +13,7 @@ import machinesQrRoutes from './machines.qr.routes.js';
 import healthRoutes from './health.routes.js';
 import docsRoutes from './docs.routes.js';
 import legacyRoutes from './legacy.routes.js';
+import adminApiRoutes from './admin.api.routes.js';
 export const router = Router();
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
@@ -27,6 +28,8 @@ router.use('/content', contentRoutes);
 router.use('/machines', machinesQrRoutes);
 router.use('/health', healthRoutes);
 router.use('/docs', docsRoutes);
+router.use('/admin', adminApiRoutes);
 router.get('/', (_req, res) => res.render('welcome', { title: 'Vend-IT' }));
 router.use('/', legacyRoutes);
 export default router;
+
