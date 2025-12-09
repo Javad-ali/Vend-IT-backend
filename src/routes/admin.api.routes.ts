@@ -22,6 +22,12 @@ import {
 } from '../modules/admin/admin.api.controller.js';
 
 import { getChartDataApi } from '../modules/admin/admin-chart-data.api.controller.js';
+import { getActivityLogsApi } from '../modules/admin/admin-activity.api.controller.js';
+import {
+  getNotificationsApi,
+  markAsReadApi,
+  markAllAsReadApi
+} from '../modules/admin/admin-notifications.api.controller.js';
 
 import {
   getCampaignsApi,
@@ -111,6 +117,14 @@ router.put('/content', updateContentApi);
 // Profile
 router.get('/profile', getProfileApi);
 router.put('/profile', avatarUploadMiddleware, updateProfileApi);
+
+// Activity Logs
+router.get('/activity-logs', getActivityLogsApi);
+
+// Notifications
+router.get('/notifications', getNotificationsApi);
+router.post('/notifications/:id/read', markAsReadApi);
+router.post('/notifications/mark-all-read', markAllAsReadApi);
 
 // Legacy Tools
 router.post('/legacy/text-to-image', generateImageApi);

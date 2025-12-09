@@ -15,14 +15,20 @@ VALUES (
 ) ON CONFLICT (email) DO NOTHING;
 
 -- ============================================
--- SEED: Static Content
+-- SEED: Static Content (if table has 'key' column)
 -- ============================================
-INSERT INTO static_content (key, title, content, created_at, updated_at) VALUES
-('privacy_policy', 'Privacy Policy', 'Your privacy is important to us...', NOW(), NOW()),
-('terms_conditions', 'Terms and Conditions', 'By using Vend-IT, you agree to...', NOW(), NOW()),
-('about_us', 'About Vend-IT', 'Vend-IT is a modern vending machine platform...', NOW(), NOW()),
-('faq', 'FAQ', 'Frequently Asked Questions...', NOW(), NOW())
-ON CONFLICT (key) DO NOTHING;
+-- Skip if table doesn't have key column
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'static_content' AND column_name = 'key') THEN
+    INSERT INTO static_content (key, title, content, created_at, updated_at) VALUES
+    ('privacy_policy', 'Privacy Policy', 'Your privacy is important to us...', NOW(), NOW()),
+    ('terms_conditions', 'Terms and Conditions', 'By using Vend-IT, you agree to...', NOW(), NOW()),
+    ('about_us', 'About Vend-IT', 'Vend-IT is a modern vending machine platform...', NOW(), NOW()),
+    ('faq', 'FAQ', 'Frequently Asked Questions...', NOW(), NOW())
+    ON CONFLICT (key) DO NOTHING;
+  END IF;
+END $$;
 
 -- ============================================
 -- SEED: Default Categories

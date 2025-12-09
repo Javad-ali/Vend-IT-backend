@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     action VARCHAR(100) NOT NULL,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    admin_id UUID REFERENCES admins(id) ON DELETE SET NULL,
+    admin_id BIGINT REFERENCES admins(id) ON DELETE SET NULL,
     resource_type VARCHAR(50) NOT NULL,
     resource_id VARCHAR(255),
     details JSONB,
@@ -36,7 +36,12 @@ COMMENT ON COLUMN audit_logs.user_agent IS 'Client user agent string';
 -- Row Level Security (if using Supabase RLS)
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Policy: Only service role can insert (from backend)
+-- Drop existing policies first (for idempotency)
+DROP POLICY IF EXISTS "Service role can insert audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "Service role can read audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "Authenticated admins can read audit logs" ON audit_logs;
+
+-- Policy: Service role can insert (from backend)
 CREATE POLICY "Service role can insert audit logs"
     ON audit_logs
     FOR INSERT
@@ -49,19 +54,6 @@ CREATE POLICY "Service role can read audit logs"
     FOR SELECT
     TO service_role
     USING (true);
-
--- Policy: Admins can read audit logs (through authenticated role if needed)
-CREATE POLICY "Authenticated admins can read audit logs"
-    ON audit_logs
-    FOR SELECT
-    TO authenticated
-    USING (
-        EXISTS (
-            SELECT 1 FROM admins
-            WHERE admins.id = auth.uid()
-            AND admins.is_active = true
-        )
-    );
 
 -- Function to auto-cleanup old audit logs (optional, run periodically)
 CREATE OR REPLACE FUNCTION cleanup_old_audit_logs(days_to_keep INTEGER DEFAULT 90)
