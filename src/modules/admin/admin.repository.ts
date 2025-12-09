@@ -44,6 +44,13 @@ export const listUsers = async () => {
     return data ?? [];
 };
 export const removeUser = async (userId) => {
+    // First, update any users who have this user as their referrer (set to null)
+    await supabase
+        .from('users')
+        .update({ referrer_user_id: null })
+        .eq('referrer_user_id', userId);
+    
+    // Now delete the user
     const { error } = await supabase.from('users').delete().eq('id', userId);
     if (error)
         throw error;
