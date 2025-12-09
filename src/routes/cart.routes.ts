@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { handleAddToCart, handleClearCart, handleGetCart, handleRemoveCart, handleUpdateCart } from '../modules/cart/cart.controller.js';
+import {
+  handleAddToCart,
+  handleClearCart,
+  handleGetCart,
+  handleRemoveCart,
+  handleUpdateCart
+} from '../modules/cart/cart.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 router.use(requireAuth);

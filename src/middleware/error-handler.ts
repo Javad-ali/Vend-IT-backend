@@ -39,12 +39,7 @@ const sanitizeError = (err: Error, isDev: boolean) => {
 /**
  * Global error handler middleware
  */
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
   const config = getConfig();
   const isDev = config.nodeEnv === 'development';
   const requestContext = getRequestContext(req);
@@ -70,7 +65,7 @@ export const errorHandler = (
     return res.status(400).json({
       status: 400,
       message: 'Validation failed',
-      errors: err.issues.map(issue => ({
+      errors: err.issues.map((issue) => ({
         path: issue.path.join('.'),
         message: issue.message,
         code: issue.code

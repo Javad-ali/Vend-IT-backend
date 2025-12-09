@@ -1,7 +1,13 @@
 import type { Request, Response } from 'express';
 import multer from 'multer';
 import { apiSuccess, apiError, errorResponse } from '../../utils/response.js';
-import { createAdminCategory, getAdminCategories, getAdminProfile, updateAdminCategory, updateAdminProfile } from '../admin/admin.profile.service.js';
+import {
+  createAdminCategory,
+  getAdminCategories,
+  getAdminProfile,
+  updateAdminCategory,
+  updateAdminProfile
+} from '../admin/admin.profile.service.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 export const avatarUploadMiddleware = upload.single('avatar');
@@ -17,9 +23,9 @@ export const getProfileApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess(profile));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch profile')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch profile'));
   }
 };
 
@@ -33,14 +39,12 @@ export const updateProfileApi = async (req: Request, res: Response) => {
       name: req.body.name,
       file: req.file ?? undefined
     });
-    return res.json(
-      apiSuccess(profile, 'Profile updated successfully')
-    );
+    return res.json(apiSuccess(profile, 'Profile updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to update profile')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to update profile'));
   }
 };
 
@@ -53,9 +57,9 @@ export const getCategoriesApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ categories }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch categories')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch categories'));
   }
 };
 
@@ -69,14 +73,12 @@ export const createCategoryApi = async (req: Request, res: Response) => {
       description: req.body.description,
       file: req.file ?? undefined
     });
-    return res.status(201).json(
-      apiSuccess({ category }, 'Category created successfully')
-    );
+    return res.status(201).json(apiSuccess({ category }, 'Category created successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to create category')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to create category'));
   }
 };
 
@@ -90,13 +92,11 @@ export const updateCategoryApi = async (req: Request, res: Response) => {
       description: req.body.description,
       file: req.file ?? undefined
     });
-    return res.json(
-      apiSuccess({ category }, 'Category updated successfully')
-    );
+    return res.json(apiSuccess({ category }, 'Category updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to update category')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to update category'));
   }
 };

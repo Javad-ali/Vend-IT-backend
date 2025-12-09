@@ -15,10 +15,8 @@ declare global {
  */
 export const correlationIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Try to get correlation ID from header, or generate new one
-  const correlationId = 
-    (req.get('x-correlation-id') as string) || 
-    (req.get('x-request-id') as string) || 
-    randomUUID();
+  const correlationId =
+    (req.get('x-correlation-id') as string) || (req.get('x-request-id') as string) || randomUUID();
 
   // Store in request
   req.correlationId = correlationId;

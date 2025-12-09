@@ -12,9 +12,9 @@ export const getContentApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess(response));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch content')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch content'));
   }
 };
 
@@ -25,13 +25,11 @@ export const updateContentApi = async (req: Request, res: Response) => {
   try {
     const payload = staticContentSchema.parse(req.body);
     const response = await updateStaticContent(payload);
-    return res.json(
-      apiSuccess(response, 'Content updated successfully')
-    );
+    return res.json(apiSuccess(response, 'Content updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to update content')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to update content'));
   }
 };

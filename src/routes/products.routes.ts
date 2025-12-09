@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { handleCategories, handleProductDetail, handleProducts, handleSearchProducts } from '../modules/products/products.controller.js';
+import {
+  handleCategories,
+  handleProductDetail,
+  handleProducts,
+  handleSearchProducts
+} from '../modules/products/products.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 router.use(requireAuth);

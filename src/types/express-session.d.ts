@@ -1,6 +1,6 @@
 /**
  * Express Session Type Augmentation
- * 
+ *
  * Extends the express-session types to include our custom session data.
  */
 import 'express-session';
@@ -16,4 +16,3 @@ declare module 'express-session' {
     returnTo?: string;
   }
 }
-

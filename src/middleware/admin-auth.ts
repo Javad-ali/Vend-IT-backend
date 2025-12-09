@@ -14,14 +14,14 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
     }
     return next();
   }
-  
+
   logger.info({ path: req.path }, 'Unauthenticated admin access attempt');
-  
+
   // Store intended destination for redirect after login
   if (req.method === 'GET' && !req.path.includes('/login')) {
     req.session.returnTo = req.originalUrl;
   }
-  
+
   return res.redirect('/admin/login');
 };
 
@@ -33,21 +33,21 @@ export const requireAdminRole = (...allowedRoles: string[]) => {
     if (!req.session?.admin) {
       return res.redirect('/admin/login');
     }
-    
+
     const adminRole = req.session.admin.role;
-    
+
     if (!allowedRoles.includes(adminRole)) {
       logger.warn(
         { adminId: req.session.admin.id, role: adminRole, requiredRoles: allowedRoles },
         'Admin role access denied'
       );
-      
+
       return res.status(403).render('admin/error', {
         title: 'Access Denied',
         message: 'You do not have permission to access this resource.'
       });
     }
-    
+
     return next();
   };
 };
@@ -66,7 +66,11 @@ export const attachAdmin = (req: Request, res: Response, next: NextFunction): vo
  * Middleware to check if already logged in
  * Redirects to dashboard if already authenticated
  */
-export const redirectIfAuthenticated = (req: Request, res: Response, next: NextFunction): void | Response => {
+export const redirectIfAuthenticated = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void | Response => {
   if (req.session?.admin) {
     return res.redirect('/admin/dashboard');
   }
@@ -77,26 +81,29 @@ export const redirectIfAuthenticated = (req: Request, res: Response, next: NextF
  * Middleware to regenerate session after login
  * Prevents session fixation attacks
  */
-export const regenerateSession = (req: Request, adminData: {
-  id: string;
-  email: string;
-  name: string | null;
-  role: string;
-}): Promise<void> => {
+export const regenerateSession = (
+  req: Request,
+  adminData: {
+    id: string;
+    email: string;
+    name: string | null;
+    role: string;
+  }
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     const returnTo = req.session.returnTo;
-    
+
     req.session.regenerate((err) => {
       if (err) {
         logger.error({ err }, 'Failed to regenerate session');
         return reject(err);
       }
-      
+
       req.session.admin = adminData;
       if (returnTo) {
         req.session.returnTo = returnTo;
       }
-      
+
       req.session.save((saveErr) => {
         if (saveErr) {
           logger.error({ err: saveErr }, 'Failed to save session');

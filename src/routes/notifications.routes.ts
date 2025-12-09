@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { handleClearNotifications, handleListNotifications, handleMarkNotificationRead, handleSendNotification } from '../modules/notifications/notifications.controller.js';
+import {
+  handleClearNotifications,
+  handleListNotifications,
+  handleMarkNotificationRead,
+  handleSendNotification
+} from '../modules/notifications/notifications.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 router.use(requireAuth);

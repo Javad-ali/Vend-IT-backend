@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { handleLogin, handleLogout, handleRefreshToken, handleRegister, handleResendOtp, handleVerifyOtp } from '../modules/auth/auth.controller.js';
+import {
+  handleLogin,
+  handleLogout,
+  handleRefreshToken,
+  handleRegister,
+  handleResendOtp,
+  handleVerifyOtp
+} from '../modules/auth/auth.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { authLimiter, otpResendLimiter } from '../middleware/rate-limiters.js';
 

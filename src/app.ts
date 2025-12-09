@@ -28,23 +28,28 @@ initSentry(app);
 // Configure allowed CORS origins
 const getAllowedOrigins = (): string[] | string => {
   const allowedOrigins = process.env.ALLOWED_ORIGINS;
-  
+
   // In development, allow all origins if not specified
   if (config.nodeEnv === 'development' && !allowedOrigins) {
     return '*';
   }
-  
+
   // Parse comma-separated origins
   if (allowedOrigins) {
-    return allowedOrigins.split(',').map(origin => origin.trim()).filter(Boolean);
+    return allowedOrigins
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean);
   }
-  
+
   // Production default: no wildcard, must be explicitly configured
   if (config.nodeEnv === 'production') {
-    logger.warn('ALLOWED_ORIGINS not configured in production - CORS will reject all cross-origin requests');
+    logger.warn(
+      'ALLOWED_ORIGINS not configured in production - CORS will reject all cross-origin requests'
+    );
     return [];
   }
-  
+
   return '*';
 };
 // Allow Express to honor X-Forwarded-* headers when traffic comes through
@@ -60,26 +65,30 @@ if (process.env.SENTRY_DSN) {
 app.use(metricsMiddleware);
 
 // Security headers
-app.use(helmet({
-  contentSecurityPolicy: config.nodeEnv === 'production' ? undefined : false,
-  crossOriginEmbedderPolicy: false
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: config.nodeEnv === 'production' ? undefined : false,
+    crossOriginEmbedderPolicy: false
+  })
+);
 
 // CORS configuration
 const allowedOrigins = getAllowedOrigins();
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
-  credentials: true,
-  maxAge: 86400 // 24 hours
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+    credentials: true,
+    maxAge: 86400 // 24 hours
+  })
+);
 
 // Default rate limiter
 app.use(defaultLimiter);
 app.use(compression());
 const captureRawBody = (req, _res, buf) => {
-    req.rawBody = Buffer.from(buf);
+  req.rawBody = Buffer.from(buf);
 };
 app.use(express.json({ limit: '2mb', verify: captureRawBody }));
 app.use(express.urlencoded({ extended: true, verify: captureRawBody }));
@@ -95,16 +104,18 @@ app.use(performanceMiddleware);
 
 app.use(morgan('combined'));
 app.use('/assets', express.static(path.join(process.cwd(), 'src/public/Assets')));
-app.use(session({
+app.use(
+  session({
     secret: config.cookieSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        httpOnly: true,
-        sameSite: config.nodeEnv === 'production' ? 'strict' : 'lax',
-        secure: config.nodeEnv === 'production'
+      httpOnly: true,
+      sameSite: config.nodeEnv === 'production' ? 'strict' : 'lax',
+      secure: config.nodeEnv === 'production'
     }
-}));
+  })
+);
 app.use(flash);
 
 // Expose metrics endpoint

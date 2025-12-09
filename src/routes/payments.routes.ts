@@ -1,7 +1,27 @@
 import { Router } from 'express';
-import { handleCardPayment, handleChargeWallet, handleDeleteCard, handleDispenseUpdate, handleGPayPayment, handleGPayToken, handleIosPayment, handleListCards, handleLoyaltyHistory, handleOrderHistory, handlePaymentHistory, handleWalletHistory, handleWalletPayment, handleCreateCard } from '../modules/payments/payments.controller.js';
+import {
+  handleCardPayment,
+  handleChargeWallet,
+  handleDeleteCard,
+  handleDispenseUpdate,
+  handleGPayPayment,
+  handleGPayToken,
+  handleIosPayment,
+  handleListCards,
+  handleLoyaltyHistory,
+  handleOrderHistory,
+  handlePaymentHistory,
+  handleWalletHistory,
+  handleWalletPayment,
+  handleCreateCard
+} from '../modules/payments/payments.controller.js';
 import { requireAuth } from '../middleware/auth.js';
-import { paymentLimiter, walletLimiter, cardLimiter, dispenseLimiter } from '../middleware/rate-limiters.js';
+import {
+  paymentLimiter,
+  walletLimiter,
+  cardLimiter,
+  dispenseLimiter
+} from '../middleware/rate-limiters.js';
 
 const router = Router();
 

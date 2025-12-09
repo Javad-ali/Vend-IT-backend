@@ -1,6 +1,6 @@
 /**
  * Type exports for Vend-IT Backend
- * 
+ *
  * Import types from this file for better organization:
  * import type { User, Payment, Machine } from '../types/index.js';
  */
@@ -56,4 +56,3 @@ export type {
   CartProductItem,
   RedemptionResult
 } from './entities.js';
-

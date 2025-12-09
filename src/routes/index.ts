@@ -32,4 +32,3 @@ router.use('/admin', adminApiRoutes);
 router.get('/', (_req, res) => res.render('welcome', { title: 'Vend-IT' }));
 router.use('/', legacyRoutes);
 export default router;
-

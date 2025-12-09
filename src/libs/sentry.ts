@@ -20,20 +20,20 @@ export const initSentry = (app: Express) => {
     dsn: process.env.SENTRY_DSN,
     environment: config.nodeEnv,
     release: process.env.npm_package_version || '1.0.0',
-    
+
     // Performance Monitoring
     tracesSampleRate: config.nodeEnv === 'production' ? 0.1 : 1.0,
     profilesSampleRate: config.nodeEnv === 'production' ? 0.1 : 1.0,
-    
+
     integrations: [
       // HTTP request tracing
       httpIntegration(),
-      
+
       // Express integration (automatically finds the Express app)
       expressIntegration(),
-      
+
       // Node profiling
-      nodeProfilingIntegration(),
+      nodeProfilingIntegration()
     ],
 
     // Filter out health check and metrics requests

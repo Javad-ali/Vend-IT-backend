@@ -1,6 +1,6 @@
 /**
  * API Response Utilities
- * 
+ *
  * Standardized response formats for the Vend-IT API.
  */
 import type { ApiResponse } from '../types/entities.js';
@@ -9,20 +9,20 @@ import type { ApiResponse } from '../types/entities.js';
  * Custom API Error class for consistent error handling
  */
 export class apiError extends Error {
-    statusCode: number;
-    details: any;
-    constructor(statusCode: number, message: string, details: any = null) {
-        super(message);
-        this.statusCode = statusCode;
-        this.details = details;
-    }
-    toJSON() {
-        return {
-            status: this.statusCode,
-            message: this.message,
-            details: this.details
-        };
-    }
+  statusCode: number;
+  details: any;
+  constructor(statusCode: number, message: string, details: any = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+  }
+  toJSON() {
+    return {
+      status: this.statusCode,
+      message: this.message,
+      details: this.details
+    };
+  }
 }
 
 /**

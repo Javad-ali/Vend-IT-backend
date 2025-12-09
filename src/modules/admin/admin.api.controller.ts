@@ -24,9 +24,9 @@ export const getDashboardApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ metrics }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch dashboard')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch dashboard'));
   }
 };
 
@@ -39,9 +39,9 @@ export const getUsersApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ users }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch users')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch users'));
   }
 };
 
@@ -54,9 +54,9 @@ export const getUserDetailsApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess(data));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch user details')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch user details'));
   }
 };
 
@@ -69,9 +69,9 @@ export const deleteUserApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess(null, 'User deleted successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to delete user')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to delete user'));
   }
 };
 
@@ -84,15 +84,15 @@ export const suspendUserApi = async (req: Request, res: Response) => {
     if (isNaN(status) || (status !== 0 && status !== 1)) {
       throw new apiError(400, 'Invalid status value. Must be 0 or 1');
     }
-    
+
     await toggleUserStatus(req.params.userId, status);
     const message = status === 1 ? 'User unsuspended successfully' : 'User suspended successfully';
     return res.json(apiSuccess(null, message));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to update user status')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to update user status'));
   }
 };
 
@@ -105,9 +105,9 @@ export const getMachinesApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ machines }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch machines')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch machines'));
   }
 };
 
@@ -120,9 +120,9 @@ export const getMachineProductsApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess({ products, machineId: req.params.machineId }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch machine products')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch machine products'));
   }
 };
 
@@ -135,9 +135,9 @@ export const getAllProductsApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ products }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch products')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch products'));
   }
 };
 
@@ -150,9 +150,9 @@ export const getProductDetailsApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess({ product }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch product details')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch product details'));
   }
 };
 
@@ -165,9 +165,9 @@ export const getOrdersApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ orders }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch orders')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch orders'));
   }
 };
 
@@ -180,9 +180,9 @@ export const getOrderDetailsApi = async (req: Request, res: Response) => {
     return res.json(apiSuccess(data));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch order details')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch order details'));
   }
 };
 
@@ -195,8 +195,8 @@ export const getFeedbackApi = async (_req: Request, res: Response) => {
     return res.json(apiSuccess({ feedback }));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to fetch feedback')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch feedback'));
   }
 };

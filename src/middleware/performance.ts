@@ -68,10 +68,7 @@ export const logSlowQuery = async <T>(
     const duration = Date.now() - startTime;
 
     if (duration >= threshold) {
-      logger.warn(
-        { queryName, duration, threshold },
-        'Slow database query detected'
-      );
+      logger.warn({ queryName, duration, threshold }, 'Slow database query detected');
     } else {
       logger.debug({ queryName, duration }, 'Query completed');
     }
@@ -79,10 +76,7 @@ export const logSlowQuery = async <T>(
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    logger.error(
-      { queryName, duration, error },
-      'Query failed'
-    );
+    logger.error({ queryName, duration, error }, 'Query failed');
     throw error;
   }
 };
@@ -112,10 +106,7 @@ export const withPerformanceBudget = async <T>(
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    logger.error(
-      { operationName, duration, budget: budgetMs, error },
-      'Operation failed'
-    );
+    logger.error({ operationName, duration, budget: budgetMs, error }, 'Operation failed');
     throw error;
   }
 };

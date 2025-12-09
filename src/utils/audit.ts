@@ -31,7 +31,7 @@ const getClientInfo = (req?: Request) => {
     ? forwardedFor[0]
     : typeof forwardedFor === 'string'
       ? forwardedFor.split(',')[0].trim()
-      : req.socket?.remoteAddress ?? null;
+      : (req.socket?.remoteAddress ?? null);
 
   const userAgent = req.headers['user-agent'] ?? null;
 
@@ -41,10 +41,7 @@ const getClientInfo = (req?: Request) => {
 /**
  * Create an audit log entry
  */
-export const auditLog = async (
-  entry: AuditLogEntry,
-  req?: Request
-): Promise<void> => {
+export const auditLog = async (entry: AuditLogEntry, req?: Request): Promise<void> => {
   const { ipAddress, userAgent } = getClientInfo(req);
 
   const logEntry = {
@@ -90,13 +87,22 @@ export const auditLog = async (
 export const audit = {
   // User actions
   userCreated: (userId: string, details?: Record<string, unknown>, req?: Request) =>
-    auditLog({ action: 'user.created', userId, resourceType: 'user', resourceId: userId, details }, req),
+    auditLog(
+      { action: 'user.created', userId, resourceType: 'user', resourceId: userId, details },
+      req
+    ),
 
   userUpdated: (userId: string, details?: Record<string, unknown>, req?: Request) =>
-    auditLog({ action: 'user.updated', userId, resourceType: 'user', resourceId: userId, details }, req),
+    auditLog(
+      { action: 'user.updated', userId, resourceType: 'user', resourceId: userId, details },
+      req
+    ),
 
   userDeleted: (userId: string, details?: Record<string, unknown>, req?: Request) =>
-    auditLog({ action: 'user.deleted', userId, resourceType: 'user', resourceId: userId, details }, req),
+    auditLog(
+      { action: 'user.deleted', userId, resourceType: 'user', resourceId: userId, details },
+      req
+    ),
 
   userLogin: (userId: string, req?: Request) =>
     auditLog({ action: 'user.login', userId, resourceType: 'user', resourceId: userId }, req),
@@ -112,7 +118,13 @@ export const audit = {
     req?: Request
   ) =>
     auditLog(
-      { action: 'payment.created', userId, resourceType: 'payment', resourceId: paymentId, details },
+      {
+        action: 'payment.created',
+        userId,
+        resourceType: 'payment',
+        resourceId: paymentId,
+        details
+      },
       req
     ),
 
@@ -123,7 +135,13 @@ export const audit = {
     req?: Request
   ) =>
     auditLog(
-      { action: 'payment.refunded', userId, resourceType: 'payment', resourceId: paymentId, details },
+      {
+        action: 'payment.refunded',
+        userId,
+        resourceType: 'payment',
+        resourceId: paymentId,
+        details
+      },
       req
     ),
 
@@ -146,12 +164,7 @@ export const audit = {
       req
     ),
 
-  walletPaid: (
-    userId: string,
-    amount: number,
-    paymentId: string,
-    req?: Request
-  ) =>
+  walletPaid: (userId: string, amount: number, paymentId: string, req?: Request) =>
     auditLog(
       {
         action: 'wallet.paid',
@@ -166,7 +179,13 @@ export const audit = {
   // Admin actions
   adminLogin: (adminId: string, email: string, req?: Request) =>
     auditLog(
-      { action: 'admin.login', adminId, resourceType: 'admin', resourceId: adminId, details: { email } },
+      {
+        action: 'admin.login',
+        adminId,
+        resourceType: 'admin',
+        resourceId: adminId,
+        details: { email }
+      },
       req
     ),
 
@@ -179,22 +198,13 @@ export const audit = {
     resourceId: string,
     details?: Record<string, unknown>,
     req?: Request
-  ) =>
-    auditLog({ action: 'admin.action', adminId, resourceType, resourceId, details }, req),
+  ) => auditLog({ action: 'admin.action', adminId, resourceType, resourceId, details }, req),
 
   // Machine actions
   machineSynced: (count: number, req?: Request) =>
-    auditLog(
-      { action: 'machine.synced', resourceType: 'machine', details: { count } },
-      req
-    ),
+    auditLog({ action: 'machine.synced', resourceType: 'machine', details: { count } }, req),
 
-  dispenseTriggered: (
-    userId: string,
-    machineId: string,
-    slotNumber: string,
-    req?: Request
-  ) =>
+  dispenseTriggered: (userId: string, machineId: string, slotNumber: string, req?: Request) =>
     auditLog(
       {
         action: 'dispense.triggered',
@@ -226,4 +236,3 @@ export const audit = {
 };
 
 export default audit;
-

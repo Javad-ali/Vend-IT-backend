@@ -8,7 +8,7 @@ import { generateImageFromText } from './admin.legacy.service.js';
 export const generateImageApi = async (req: Request, res: Response) => {
   try {
     const { prompt, styleId } = req.body;
-    
+
     if (!prompt) {
       throw errorResponse(400, 'Prompt is required');
     }
@@ -17,8 +17,8 @@ export const generateImageApi = async (req: Request, res: Response) => {
     return res.json(result);
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to generate image')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to generate image'));
   }
 };

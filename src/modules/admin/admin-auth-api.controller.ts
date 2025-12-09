@@ -10,11 +10,9 @@ const config = getConfig();
  * Generate JWT token for admin
  */
 const generateAdminToken = (adminId: string, email: string, name: string | null): string => {
-  return jwt.sign(
-    { adminId, email, name },
-    config.jwtAccessSecret,
-    { expiresIn: config.accessTokenTtl }
-  );
+  return jwt.sign({ adminId, email, name }, config.jwtAccessSecret, {
+    expiresIn: config.accessTokenTtl
+  });
 };
 
 /**
@@ -23,7 +21,7 @@ const generateAdminToken = (adminId: string, email: string, name: string | null)
 export const loginApi = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       throw new apiError(400, 'Email and password are required');
     }
@@ -32,20 +30,21 @@ export const loginApi = async (req: Request, res: Response) => {
     const token = generateAdminToken(admin.id, admin.email, admin.name);
 
     return res.json(
-      apiSuccess({
-        token,
-        admin: {
-          id: admin.id,
-          email: admin.email,
-          name: admin.name
-        }
-      }, 'Login successful')
+      apiSuccess(
+        {
+          token,
+          admin: {
+            id: admin.id,
+            email: admin.email,
+            name: admin.name
+          }
+        },
+        'Login successful'
+      )
     );
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Login failed')
-    );
+    return res.status(statusCode).json(errorResponse(statusCode, error.message || 'Login failed'));
   }
 };
 
@@ -56,7 +55,7 @@ export const getMeApi = async (req: Request, res: Response) => {
   try {
     // Admin info is attached by requireAdminToken middleware
     const admin = (req as any).admin;
-    
+
     if (!admin) {
       throw new apiError(401, 'Not authenticated');
     }
@@ -72,9 +71,9 @@ export const getMeApi = async (req: Request, res: Response) => {
     );
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to get admin info')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to get admin info'));
   }
 };
 
@@ -82,9 +81,7 @@ export const getMeApi = async (req: Request, res: Response) => {
  * API: Admin logout - client should delete token
  */
 export const logoutApi = async (_req: Request, res: Response) => {
-  return res.json(
-    apiSuccess(null, 'Logout successful')
-  );
+  return res.json(apiSuccess(null, 'Logout successful'));
 };
 
 /**
@@ -105,13 +102,11 @@ export const changePasswordApi = async (req: Request, res: Response) => {
 
     await changeAdminPassword(admin.adminId, currentPassword, newPassword);
 
-    return res.json(
-      apiSuccess(null, 'Password changed successfully')
-    );
+    return res.json(apiSuccess(null, 'Password changed successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
-    return res.status(statusCode).json(
-      errorResponse(statusCode, error.message || 'Failed to change password')
-    );
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to change password'));
   }
 };

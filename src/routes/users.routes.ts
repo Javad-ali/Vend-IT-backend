@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { handleCreateProfile, handleDeleteAccount, handleEditProfile, handleGetProfile, handleReferralInfo, uploadAvatar } from '../modules/users/users.controller.js';
+import {
+  handleCreateProfile,
+  handleDeleteAccount,
+  handleEditProfile,
+  handleGetProfile,
+  handleReferralInfo,
+  uploadAvatar
+} from '../modules/users/users.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 router.use(requireAuth);

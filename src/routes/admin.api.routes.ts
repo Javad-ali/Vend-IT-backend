@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { requireAdminToken } from '../middleware/admin-auth-api.js';
-import { loginApi, getMeApi, logoutApi, changePasswordApi } from '../modules/admin/admin-auth-api.controller.js';
+import {
+  loginApi,
+  getMeApi,
+  logoutApi,
+  changePasswordApi
+} from '../modules/admin/admin-auth-api.controller.js';
 import {
   getDashboardApi,
   getUsersApi,
