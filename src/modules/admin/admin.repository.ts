@@ -6,18 +6,22 @@ const sumPayments = async () => {
     return (data ?? []).reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
 };
 export const getDashboardMetrics = async () => {
-    const [total, active, revenue] = await Promise.all([
+    const [totalUsers, activeUsers, totalRevenue, totalOrders, activeMachines] = await Promise.all([
         supabase.from('users').select('id', { head: true, count: 'exact' }),
         supabase
             .from('users')
             .select('id', { head: true, count: 'exact' })
             .eq('status', 1),
-        sumPayments()
+        sumPayments(),
+        supabase.from('payments').select('id', { head: true, count: 'exact' }),
+        supabase.from('machine').select('u_id', { head: true, count: 'exact' })
     ]);
     return {
-        totalUsers: total.count ?? 0,
-        activeUsers: active.count ?? 0,
-        revenue
+        totalUsers: totalUsers.count ?? 0,
+        activeUsers: activeUsers.count ?? 0,
+        totalRevenue: totalRevenue,
+        totalOrders: totalOrders.count ?? 0,
+        activeMachines: activeMachines.count ?? 0
     };
 };
 export const listUsers = async () => {

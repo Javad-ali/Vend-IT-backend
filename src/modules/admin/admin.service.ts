@@ -47,7 +47,15 @@ export const getAdminUserDetails = async (userId) => {
         history: purchases
     };
 };
-export const getAdminMachines = async () => listMachines();
+export const getAdminMachines = async () => {
+    const machines = await listMachines();
+    return machines.map(machine => ({
+        machine_u_id: machine.u_id,
+        machine_name: machine.machine_tag,
+        location: machine.location_address,
+        status: machine.machine_operation_state || 'unknown'
+    }));
+};
 export const getAdminMachineProducts = async (machineUId) => {
     const slots = await listMachineProducts(machineUId);
     return slots.map(slot => ({
@@ -75,8 +83,34 @@ export const getAdminProduct = async (productId) => {
         throw new apiError(404, 'Product not found');
     return product;
 };
-export const getAdminProducts = async () => listProducts();
-export const getAdminOrders = async () => listOrders();
+export const getAdminProducts = async () => {
+    const products = await listProducts();
+    return products.map(item => {
+        const product = unwrapSingle(item.product);
+        return {
+            product_u_id: product?.product_u_id || '',
+            description: product?.description || 'N/A',
+            brand_name: product?.brand_name || 'N/A',
+            category: 'General' // Can be enhanced if category data is available
+        };
+    });
+};
+export const getAdminOrders = async () => {
+    const orders = await listOrders();
+    return orders.map(order => {
+        const machine = unwrapSingle(order.machine);
+        const user = unwrapSingle(order.user);
+        const userName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : 'Unknown';
+        
+        return {
+            order_id: order.id,
+            user_name: userName,
+            total_amount: order.amount,
+            status: order.status || 'pending',
+            created_at: order.created_at
+        };
+    });
+};
 export const getAdminOrder = async (orderId) => {
     const order = await getOrder(orderId);
     if (!order)
@@ -84,4 +118,16 @@ export const getAdminOrder = async (orderId) => {
     const items = await listOrderProducts(orderId);
     return { order, items };
 };
-export const getAdminFeedback = async () => listFeedback();
+export const getAdminFeedback = async () => {
+    const feedback = await listFeedback();
+    return feedback.map(item => {
+        const user = unwrapSingle(item.user);
+        return {
+            id: item.id,
+            user_name: user?.email || user?.phone_number || 'Anonymous',
+            message: item.message,
+            rating: null, // Add if rating field exists
+            created_at: item.created_at
+        };
+    });
+};
