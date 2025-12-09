@@ -20,8 +20,17 @@ export const getDashboardMetrics = async () => {
     activeMachines: activeMachines.count ?? 0
   };
 };
-export const listUsers = async () => {
-  const { data, error } = await supabase
+export const listUsers = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: number;
+  search?: string;
+}) => {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
     .from('users')
     .select(
       `id,
@@ -34,12 +43,38 @@ export const listUsers = async () => {
        dob,
        is_otp_verify,
        status,
-       created_at`
-    )
-    .order('created_at', { ascending: false });
+       created_at`,
+      { count: 'exact' }
+    );
+
+  // Apply filters
+  if (params?.status !== undefined) {
+    query = query.eq('status', params.status);
+  }
+
+  if (params?.search) {
+    query = query.or(
+      `first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%,phone_number.ilike.%${params.search}%`
+    );
+  }
+
+  // Apply pagination and sorting
+  query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data ?? [];
+
+  return {
+    data: data ?? [],
+    meta: {
+      page,
+      limit,
+      total: count ?? 0,
+      totalPages: Math.ceil((count ?? 0) / limit)
+    }
+  };
 };
+
 export const removeUser = async (userId) => {
   // First, update any users who have this user as their referrer (set to null)
   await supabase.from('users').update({ referrer_user_id: null }).eq('referrer_user_id', userId);
@@ -94,8 +129,17 @@ export const getUserPayments = async (userId) => {
   if (error) throw error;
   return data ?? [];
 };
-export const listMachines = async () => {
-  const { data, error } = await supabase
+export const listMachines = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}) => {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
     .from('machine')
     .select(
       `u_id,
@@ -105,11 +149,34 @@ export const listMachines = async () => {
        machine_operation_state,
        last_machine_status,
        machine_qrcode,
-       created_at`
-    )
-    .order('created_at', { ascending: false });
+       created_at`,
+      { count: 'exact' }
+    );
+
+  if (params?.status) {
+    query = query.eq('machine_operation_state', params.status);
+  }
+
+  if (params?.search) {
+    query = query.or(
+      `machine_tag.ilike.%${params.search}%,u_id.ilike.%${params.search}%,location_address.ilike.%${params.search}%`
+    );
+  }
+
+  query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data ?? [];
+
+  return {
+    data: data ?? [],
+    meta: {
+      page,
+      limit,
+      total: count ?? 0,
+      totalPages: Math.ceil((count ?? 0) / limit)
+    }
+  };
 };
 export const listMachineProducts = async (machineUId) => {
   const { data, error } = await supabase
@@ -153,8 +220,16 @@ export const getProduct = async (productUId) => {
   if (error) throw error;
   return data;
 };
-export const listProducts = async () => {
-  const { data, error } = await supabase
+export const listProducts = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) => {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
     .from('machine_slots')
     .select(
       `
@@ -162,18 +237,46 @@ export const listProducts = async () => {
       product:product_u_id (
         product_u_id,
         description,
-        brand_name,
-        product_image_url
+        product_image_url,
+        brand_name
       ),
       quantity
-    `
-    )
-    .limit(10);
+    `,
+      { count: 'exact' }
+    );
+
+  if (params?.search) {
+    query = query.or(
+      `product_u_id.ilike.%${params.search}%`
+    );
+  }
+
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data ?? [];
+
+  return {
+    data: data ?? [],
+    meta: {
+      page,
+      limit,
+      total: count ?? 0,
+      totalPages: Math.ceil((count ?? 0) / limit)
+    }
+  };
 };
-export const listOrders = async () => {
-  const { data, error } = await supabase
+export const listOrders = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}) => {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
     .from('payments')
     .select(
       `
@@ -184,11 +287,34 @@ export const listOrders = async () => {
       created_at,
       machine:machine_u_id(machine_tag),
       user:users!payments_user_id_fkey(first_name, last_name)
-    `
-    )
-    .order('created_at', { ascending: false });
+    `,
+      { count: 'exact' }
+    );
+
+  if (params?.status) {
+    query = query.eq('status', params.status);
+  }
+
+  if (params?.search) {
+    query = query.or(
+      `id.ilike.%${params.search}%`
+    );
+  }
+
+  query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data ?? [];
+
+  return {
+    data: data ?? [],
+    meta: {
+      page,
+      limit,
+      total: count ?? 0,
+      totalPages: Math.ceil((count ?? 0) / limit)
+    }
+  };
 };
 export const getOrder = async (orderId) => {
   const { data, error } = await supabase
@@ -229,8 +355,16 @@ export const listOrderProducts = async (orderId) => {
   if (error) throw error;
   return data ?? [];
 };
-export const listFeedback = async () => {
-  const { data, error } = await supabase
+export const listFeedback = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) => {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const offset = (page - 1) * limit;
+
+  let query = supabase
     .from('contact_us')
     .select(
       `
@@ -239,9 +373,28 @@ export const listFeedback = async () => {
       message,
       created_at,
       user:users!contact_us_user_id_fkey(phone_number, email)
-    `
-    )
-    .order('created_at', { ascending: false });
+    `,
+      { count: 'exact' }
+    );
+
+  if (params?.search) {
+    query = query.or(
+      `message.ilike.%${params.search}%,subject.ilike.%${params.search}%`
+    );
+  }
+
+  query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data ?? [];
+
+  return {
+    data: data ?? [],
+    meta: {
+      page,
+      limit,
+      total: count ?? 0,
+      totalPages: Math.ceil((count ?? 0) / limit)
+    }
+  };
 };

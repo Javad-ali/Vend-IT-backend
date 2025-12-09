@@ -14,12 +14,13 @@ import {
   suspendUserApi,
   getMachinesApi,
   getMachineProductsApi,
-  getAllProductsApi,
+  getProductsApi,
   getProductDetailsApi,
   getOrdersApi,
   getOrderDetailsApi,
   getFeedbackApi
 } from '../modules/admin/admin.api.controller.js';
+
 import {
   getCampaignsApi,
   createCampaignApi,
@@ -79,7 +80,7 @@ router.post('/machines/:machineId/qr', async (req, res) => {
 });
 
 // Products
-router.get('/products', getAllProductsApi);
+router.get('/products', getProductsApi);
 router.get('/products/:productId', getProductDetailsApi);
 
 // Orders

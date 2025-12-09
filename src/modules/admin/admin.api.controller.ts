@@ -33,15 +33,18 @@ export const getDashboardApi = async (_req: Request, res: Response) => {
 /**
  * API: Get all users
  */
-export const getUsersApi = async (_req: Request, res: Response) => {
+export const getUsersApi = async (req: Request, res: Response) => {
   try {
-    const users = await getAdminUsers();
-    return res.json(apiSuccess({ users }));
+    const { page, limit, status, search } = req.query;
+    const result = await getAdminUsers({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      status: status ? parseInt(status as string) : undefined,
+      search: search as string
+    });
+    return res.json(apiSuccess(result));
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    return res
-      .status(statusCode)
-      .json(errorResponse(statusCode, error.message || 'Failed to fetch users'));
+    return res.status(500).json(errorResponse(500, error.message));
   }
 };
 
@@ -99,15 +102,18 @@ export const suspendUserApi = async (req: Request, res: Response) => {
 /**
  * API: Get all machines
  */
-export const getMachinesApi = async (_req: Request, res: Response) => {
+export const getMachinesApi = async (req: Request, res: Response) => {
   try {
-    const machines = await getAdminMachines();
-    return res.json(apiSuccess({ machines }));
+    const { page, limit, status, search } = req.query;
+    const result = await getAdminMachines({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      status: status as string,
+      search: search as string
+    });
+    return res.json(apiSuccess(result));
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    return res
-      .status(statusCode)
-      .json(errorResponse(statusCode, error.message || 'Failed to fetch machines'));
+    return res.status(500).json(errorResponse(500, error.message));
   }
 };
 
@@ -129,15 +135,17 @@ export const getMachineProductsApi = async (req: Request, res: Response) => {
 /**
  * API: Get all products
  */
-export const getAllProductsApi = async (_req: Request, res: Response) => {
+export const getProductsApi = async (req: Request, res: Response) => {
   try {
-    const products = await getAdminProducts();
-    return res.json(apiSuccess({ products }));
+    const { page, limit, search } = req.query;
+    const result = await getAdminProducts({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      search: search as string
+    });
+    return res.json(apiSuccess(result));
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    return res
-      .status(statusCode)
-      .json(errorResponse(statusCode, error.message || 'Failed to fetch products'));
+    return res.status(500).json(errorResponse(500, error.message));
   }
 };
 
@@ -159,15 +167,18 @@ export const getProductDetailsApi = async (req: Request, res: Response) => {
 /**
  * API: Get all orders
  */
-export const getOrdersApi = async (_req: Request, res: Response) => {
+export const getOrdersApi = async (req: Request, res: Response) => {
   try {
-    const orders = await getAdminOrders();
-    return res.json(apiSuccess({ orders }));
+    const { page, limit, status, search } = req.query;
+    const result = await getAdminOrders({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      status: status as string,
+      search: search as string
+    });
+    return res.json(apiSuccess(result));
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    return res
-      .status(statusCode)
-      .json(errorResponse(statusCode, error.message || 'Failed to fetch orders'));
+    return res.status(500).json(errorResponse(500, error.message));
   }
 };
 
@@ -189,14 +200,16 @@ export const getOrderDetailsApi = async (req: Request, res: Response) => {
 /**
  * API: Get all feedback
  */
-export const getFeedbackApi = async (_req: Request, res: Response) => {
+export const getFeedbackApi = async (req: Request, res: Response) => {
   try {
-    const feedback = await getAdminFeedback();
-    return res.json(apiSuccess({ feedback }));
+    const { page, limit, search } = req.query;
+    const result = await getAdminFeedback({
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
+      search: search as string
+    });
+    return res.json(apiSuccess(result));
   } catch (error: any) {
-    const statusCode = error.statusCode || 500;
-    return res
-      .status(statusCode)
-      .json(errorResponse(statusCode, error.message || 'Failed to fetch feedback'));
+    return res.status(500).json(errorResponse(500, error.message));
   }
 };
