@@ -21,6 +21,8 @@ import {
   getFeedbackApi
 } from '../modules/admin/admin.api.controller.js';
 
+import { getChartDataApi } from '../modules/admin/admin-chart-data.api.controller.js';
+
 import {
   getCampaignsApi,
   createCampaignApi,
@@ -60,6 +62,7 @@ router.put('/auth/change-password', changePasswordApi);
 
 // Dashboard
 router.get('/dashboard', getDashboardApi);
+router.get('/dashboard/charts', getChartDataApi);
 
 // Users
 router.get('/users', getUsersApi);
