@@ -22,18 +22,24 @@ const sendOtp = async (phone, otp) => {
     return true;
   }
   try {
-    const { status } = await axios.post(
-      process.env.SMS_API_URL ?? 'https://www.kwtsms.com/API/send/',
-      new URLSearchParams({
-        username: process.env.SMS_USERNAME ?? '',
-        password: process.env.SMS_PASSWORD ?? '',
-        sender: process.env.SMS_SENDER ?? 'KWT-SMS',
-        mobile: phone.replace(/^\+/, ''),
-        lang: '1',
-        message: otp
-      }),
-      { timeout: 5000 }
-    );
+    // SMSBox API integration
+    const smsApiUrl = process.env.SMS_API_URL ?? 'http://smsbox.com/smsgateway/services/messaging.asmx/Http_SendSMS';
+    const params = new URLSearchParams({
+      username: process.env.SMS_USERNAME ?? '',
+      password: process.env.SMS_PASSWORD ?? '',
+      customerid: process.env.SMS_CUSTOMER_ID ?? '',
+      sendertext: process.env.SMS_SENDER ?? 'VEND IT',
+      messagebody: `Your OTP is: ${otp}`,
+      recipientnumbers: phone.replace(/^\+/, ''), // Remove + prefix
+      defdate: '', // Send immediately
+      isblink: 'false',
+      isflash: 'false'
+    });
+    
+    const { status } = await axios.get(`${smsApiUrl}?${params.toString()}`, {
+      timeout: 10000 // Increased timeout for SMS gateway
+    });
+    
     if (status !== 200) {
       throw new apiError(502, 'OTP provider failure');
     }
