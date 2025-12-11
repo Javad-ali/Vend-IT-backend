@@ -158,7 +158,7 @@ ALTER TABLE machines ADD COLUMN IF NOT EXISTS distance NUMERIC(10,3);
 -- ============================================
 
 -- Link rating to payment for verification
-ALTER TABLE ratings ADD COLUMN IF NOT EXISTS payment_id BIGINT REFERENCES payments(id) ON DELETE SET NULL;
+ALTER TABLE ratings ADD COLUMN IF NOT EXISTS payment_id UUID REFERENCES payments(id) ON DELETE SET NULL;
 
 -- Create index
 CREATE INDEX IF NOT EXISTS idx_ratings_payment ON ratings(payment_id);
