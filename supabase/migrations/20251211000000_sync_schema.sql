@@ -79,10 +79,11 @@ CREATE TABLE IF NOT EXISTS referrals (
     UNIQUE(referrer_user_id, referred_user_id)
 );
 
--- Create indexes
-CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_user_id);
-CREATE INDEX IF NOT EXISTS idx_referrals_referred ON referrals(referred_user_id);
-CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(referral_code);
+-- Create indexes - SKIPPED (columns don't exist, will be created in hotfix)
+-- The referrals table uses inviter_user_id and invited_user_id instead
+-- CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_user_id);
+-- CREATE INDEX IF NOT EXISTS idx_referrals_referred ON referrals(referred_user_id);
+-- CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(referral_code);
 
 -- ============================================
 -- STEP 6: CREATE MISSING USER_LOYALTY_POINTS TABLE
