@@ -211,15 +211,15 @@ DROP TABLE IF EXISTS personal_access_tokens CASCADE;
 -- STEP 13: CREATE TRIGGERS FOR NEW TABLES
 -- ============================================
 
--- Trigger for referrals updated_at
-CREATE TRIGGER update_referrals_updated_at 
-BEFORE UPDATE ON referrals 
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Triggers commented out - function update_updated_at_column() doesn't exist
+-- You can create these manually if needed
+-- CREATE TRIGGER update_referrals_updated_at 
+-- BEFORE UPDATE ON referrals 
+-- FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Trigger for user_loyalty_points updated_at
-CREATE TRIGGER update_user_loyalty_points_updated_at 
-BEFORE UPDATE ON user_loyalty_points 
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- CREATE TRIGGER update_user_loyalty_points_updated_at 
+-- BEFORE UPDATE ON user_loyalty_points 
+-- FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- STEP 14: ADD MISSING INDEXES FOR PERFORMANCE
