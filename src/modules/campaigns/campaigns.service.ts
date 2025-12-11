@@ -40,6 +40,12 @@ export const fetchAllCampaigns = async () => {
   const data = await listCampaigns();
   return data.map((c) => ({ ...c, image_url: buildImageUrl(c.image_path) }));
 };
+
+export const fetchCampaignById = async (id: string) => {
+  const campaign = await getCampaignById(id);
+  if (!campaign) throw new apiError(404, 'Campaign not found');
+  return { ...campaign, image_url: buildImageUrl(campaign.image_path) };
+};
 const uploadImage = async (file) => {
   if (!file) return null;
   const ext = path.extname(file.originalname) || '.jpg';

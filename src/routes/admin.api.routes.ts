@@ -31,6 +31,7 @@ import {
 
 import {
   getCampaignsApi,
+  getCampaignByIdApi,
   createCampaignApi,
   updateCampaignApi,
   deleteCampaignApi,
@@ -40,6 +41,8 @@ import {
   getProfileApi,
   updateProfileApi,
   getCategoriesApi,
+  getCategoryByIdApi,
+  getCategoryProductsApi,
   createCategoryApi,
   updateCategoryApi,
   avatarUploadMiddleware,
@@ -98,12 +101,15 @@ router.get('/orders/:orderId', getOrderDetailsApi);
 
 // Campaigns
 router.get('/campaigns', getCampaignsApi);
+router.get('/campaigns/:campaignId', getCampaignByIdApi);
 router.post('/campaigns', campaignUploadMiddleware, createCampaignApi);
 router.put('/campaigns/:campaignId', campaignUploadMiddleware, updateCampaignApi);
 router.delete('/campaigns/:campaignId', deleteCampaignApi);
 
 // Categories
 router.get('/categories', getCategoriesApi);
+router.get('/categories/:categoryId', getCategoryByIdApi);
+router.get('/categories/:categoryId/products', getCategoryProductsApi);
 router.post('/categories', categoryUploadMiddleware, createCategoryApi);
 router.put('/categories/:categoryId', categoryUploadMiddleware, updateCategoryApi);
 

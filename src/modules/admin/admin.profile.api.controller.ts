@@ -4,6 +4,8 @@ import { apiSuccess, apiError, errorResponse } from '../../utils/response.js';
 import {
   createAdminCategory,
   getAdminCategories,
+  getAdminCategoryById,
+  getAdminCategoryProducts,
   getAdminProfile,
   updateAdminCategory,
   updateAdminProfile
@@ -60,6 +62,36 @@ export const getCategoriesApi = async (_req: Request, res: Response) => {
     return res
       .status(statusCode)
       .json(errorResponse(statusCode, error.message || 'Failed to fetch categories'));
+  }
+};
+
+/**
+ * API: Get category by ID
+ */
+export const getCategoryByIdApi = async (req: Request, res: Response) => {
+  try {
+    const category = await getAdminCategoryById(req.params.categoryId);
+    return res.json(apiSuccess(category));
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch category'));
+  }
+};
+
+/**
+ * API: Get products by category
+ */
+export const getCategoryProductsApi = async (req: Request, res: Response) => {
+  try {
+    const products = await getAdminCategoryProducts(req.params.categoryId);
+    return res.json(apiSuccess(products));
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch products'));
   }
 };
 

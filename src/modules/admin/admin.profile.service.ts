@@ -71,6 +71,37 @@ export const getAdminCategories = async () => {
     created_at: row.created_at
   }));
 };
+
+export const getAdminCategoryById = async (id: string) => {
+  const category = await getCategoryById(id);
+  if (!category) throw new apiError(404, 'Category not found');
+  return {
+    id: category.id,
+    name: category.category_name,
+    description: category.description,
+    icon_url: buildCategoryIconUrl(category.icon_path ?? null),
+    status: 1 // Categories are always active
+  };
+};
+
+export const getAdminCategoryProducts = async (categoryId: string) => {
+  // Query products table filtered by category_id
+  const { data, error } = await supabase
+    .from('products')
+    .select('id, product_name, price, stock, status')
+    .eq('category_id', categoryId)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    name: p.product_name,
+    price: p.price,
+    stock: p.stock,
+    status: p.status
+  }));
+};
 export const createAdminCategory = async (payload) => {
   const iconPath = await uploadFile({
     bucket: CATEGORY_BUCKET,

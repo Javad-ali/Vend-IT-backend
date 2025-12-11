@@ -4,6 +4,7 @@ import { apiSuccess, apiError, errorResponse } from '../../utils/response.js';
 import {
   createCampaignWithMedia,
   fetchAllCampaigns,
+  fetchCampaignById,
   removeCampaign,
   updateCampaignWithMedia
 } from '../campaigns/campaigns.service.js';
@@ -23,6 +24,21 @@ export const getCampaignsApi = async (_req: Request, res: Response) => {
     return res
       .status(statusCode)
       .json(errorResponse(statusCode, error.message || 'Failed to fetch campaigns'));
+  }
+};
+
+/**
+ * API: Get campaign by ID
+ */
+export const getCampaignByIdApi = async (req: Request, res: Response) => {
+  try {
+    const campaign = await fetchCampaignById(req.params.campaignId);
+    return res.json(apiSuccess(campaign));
+  } catch (error: any) {
+    const statusCode = error.statusCode || 500;
+    return res
+      .status(statusCode)
+      .json(errorResponse(statusCode, error.message || 'Failed to fetch campaign'));
   }
 };
 
