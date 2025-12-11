@@ -90,8 +90,8 @@ CREATE TABLE IF NOT EXISTS referrals (
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS user_loyalty_points (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     points_balance NUMERIC(12,3) DEFAULT 0,
     total_points_earned NUMERIC(12,3) DEFAULT 0,
     total_points_redeemed NUMERIC(12,3) DEFAULT 0,
@@ -108,8 +108,8 @@ CREATE INDEX IF NOT EXISTS idx_user_loyalty_points_user ON user_loyalty_points(u
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS audit_logs (
-    id BIGSERIAL PRIMARY KEY,
-    admin_id BIGINT REFERENCES admins(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_id UUID REFERENCES admins(id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL,
     resource_type VARCHAR(100),
     resource_id VARCHAR(255),
@@ -131,8 +131,8 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS activity_logs (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     activity_type VARCHAR(100) NOT NULL,
     description TEXT,
     metadata JSONB,
