@@ -30,8 +30,7 @@ COPY package.json package-lock.json ./
 # Copy build artifacts
 COPY --from=build /app/dist ./dist
 
-# Copy runtime assets
-COPY src/views ./src/views
+# Copy static assets (if needed)
 COPY src/public ./src/public
 
 # Create non-root user for security
@@ -44,7 +43,7 @@ USER nodejs
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+    CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 ENV PORT=3000
 EXPOSE 3000
