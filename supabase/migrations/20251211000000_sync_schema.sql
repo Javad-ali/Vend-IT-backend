@@ -237,38 +237,11 @@ CREATE INDEX IF NOT EXISTS idx_payments_earned_points ON payments(earned_points)
 CREATE INDEX IF NOT EXISTS idx_loyalty_points_reason ON loyalty_points(reason);
 
 -- ============================================
--- STEP 15: UPDATE SEQUENCES
+-- STEP 15: SEQUENCES NOT NEEDED
 -- ============================================
 
--- Update sequences to prevent ID conflicts
-DO $$
-DECLARE
-    max_id BIGINT;
-BEGIN
-    -- Referrals
-    SELECT COALESCE(MAX(id), 0) INTO max_id FROM referrals;
-    IF max_id > 0 THEN
-        PERFORM setval('referrals_id_seq', max_id);
-    END IF;
-    
-    -- User loyalty points
-    SELECT COALESCE(MAX(id), 0) INTO max_id FROM user_loyalty_points;
-    IF max_id > 0 THEN
-        PERFORM setval('user_loyalty_points_id_seq', max_id);
-    END IF;
-    
-    -- Audit logs
-    SELECT COALESCE(MAX(id), 0) INTO max_id FROM audit_logs;
-    IF max_id > 0 THEN
-        PERFORM setval('audit_logs_id_seq', max_id);
-    END IF;
-    
-    -- Activity logs
-    SELECT COALESCE(MAX(id), 0) INTO max_id FROM activity_logs;
-    IF max_id > 0 THEN
-        PERFORM setval('activity_logs_id_seq', max_id);
-    END IF;
-END $$;
+-- Sequences skipped - new tables use UUID (gen_random_uuid()) not SERIAL
+-- No sequence updates needed for UUID-based tables
 
 -- ============================================
 -- VERIFICATION QUERIES
