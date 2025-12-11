@@ -1,27 +1,90 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production
+    container_name: vendit-api
     env_file:
       - .env
     environment:
       HOST: 0.0.0.0
       PORT: 3000
       REDIS_URL: redis://redis:6379
+      NODE_ENV: production
     depends_on:
       redis:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     command: ["node", "dist/server.js"]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     networks:
       - vendit
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: vendit-worker
+    env_file:
+      - .env
+    environment:
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["node", "dist/workers/notification.worker.js"]
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - vendit
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    container_name: vendit-redis
+    command: [
+      "redis-server",
+      "--save", "60", "1",
+      "--loglevel", "warning",
+      "--maxmemory", "256mb",
+      "--maxmemory-policy", "allkeys-lru"
+    ]
     ports:
       - "6379:6379"
     volumes:
@@ -31,8 +94,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - vendit
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
 networks:
   vendit:
@@ -40,3 +115,4 @@ networks:
 
 volumes:
   redis-data:
+    driver: local

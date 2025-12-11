@@ -1,8 +1,72 @@
-node_modules
-npm-debug.log
-.npmrc
-.env
-dist
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json.tmp
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment & secrets
+.env*
+!.env.example
+!.env.sample
+!.env.monitoring.example
+*.pem
+*.key
+*.cert
+
+# Development
+.vscode/
+.idea/
 .DS_Store
-coverage
+*.swp
+*.swo
+.editorconfig
+
+# Testing & coverage
+coverage/
+.nyc_output/
+tests/
+*.test.ts
+*.spec.ts
+vitest.config.ts
 vitest.config.ts.timestamp*
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+logs/
+*.log
+
+# Temp & cache
+tmp/
+temp/
+.cache/
+.parcel-cache/
+
+# Docker files (don't copy into image)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Misc
+migrations/
+scripts/
+supabase/
+ngrok.yml
+.prettierrc
+.eslintrc.cjs
