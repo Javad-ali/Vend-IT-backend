@@ -106,17 +106,21 @@ export const sendNotification = async (input) => {
 export const getNotifications = async (userId) => {
   const notifications = await listNotificationsByUser(userId);
   const formatted = notifications.map((notification) => {
+    // Get the first sender if it's an array
+    const senderData = Array.isArray(notification.sender)
+      ? notification.sender[0]
+      : notification.sender;
     return {
-      id: notification.id,
-      title: notification.title,
-      body: notification.body,
-      isRead: notification.is_read,
-      status: notification.status,
-      type: notification.type,
-      data: notification.data,
-      paymentId: notification.payment_id,
-      createdAt: notification.created_at,
-      senderId: notification.sender_id
+      ...notification,
+      sender: senderData
+        ? {
+            id: senderData.id,
+            name: `${senderData.first_name ?? ''} ${senderData.last_name ?? ''}`.trim(),
+            avatar: senderData.user_profile
+              ? `${process.env.CDN_BASE_URL ?? ''}/users/${senderData.user_profile}`
+              : null
+          }
+        : null
     };
   });
   return ok(formatted, 'Notification list found');

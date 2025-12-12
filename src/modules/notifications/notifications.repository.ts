@@ -21,7 +21,7 @@ export const listNotificationsByUser = async (userId) => {
   const { data, error } = await supabase
     .from('notifications')
     .select(
-      'id, title, body, is_read, status, type, data, payment_id, created_at, sender_id'
+      'id, title, body, is_read, status, type, data, payment_id, created_at, sender:sender_id (id, first_name, last_name, user_profile)'
     )
     .eq('receiver_id', userId)
     .order('created_at', { ascending: false });

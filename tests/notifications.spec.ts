@@ -115,25 +115,15 @@ describe('notifications service', () => {
           id: 'notif-1',
           title: 'Test 1',
           body: 'Body 1',
-          is_read: false,
-          status: '0',
           type: 'System',
-          data: null,
-          payment_id: null,
-          created_at: '2025-01-01T00:00:00Z',
-          sender_id: 'sender-1'
+          sender: [{ id: 'sender-1', first_name: 'John', last_name: 'Doe', user_profile: 'avatar.jpg' }]
         },
         {
           id: 'notif-2',
           title: 'Test 2',
           body: 'Body 2',
-          is_read: true,
-          status: '1',
           type: 'Payment',
-          data: null,
-          payment_id: null,
-          created_at: '2025-01-01T00:00:00Z',
-          sender_id: null
+          sender: null
         }
       ]);
 
@@ -141,8 +131,8 @@ describe('notifications service', () => {
 
       expect(result.status).toBe(200);
       expect(result.data).toHaveLength(2);
-      expect(result.data[0].senderId).toBe('sender-1');
-      expect(result.data[1].senderId).toBeNull();
+      expect(result.data[0].sender.name).toBe('John Doe');
+      expect(result.data[1].sender).toBeNull();
     });
 
     it('returns empty list when no notifications', async () => {
