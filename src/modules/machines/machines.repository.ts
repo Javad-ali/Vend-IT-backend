@@ -43,7 +43,7 @@ const mapRemoteMachine = (machine) => {
 };
 export const upsertMachines = async (machines) => {
   if (!machines.length) return;
-  const { error } = await supabase.from('machine').upsert(
+  const { error } = await supabase.from('machines').upsert(
     machines.map((machine) => mapRemoteMachine(machine)),
     { onConflict: 'u_id' }
   );
@@ -91,12 +91,12 @@ export const upsertSlots = async (slots) => {
   }
 };
 export const listMachines = async () => {
-  const { data, error } = await supabase.from('machine').select('*');
+  const { data, error } = await supabase.from('machines').select('*');
   if (error) throw error;
   return data;
 };
 export const getMachineById = async (id) => {
-  const { data, error } = await supabase.from('machine').select('*').eq('u_id', id).maybeSingle();
+  const { data, error } = await supabase.from('machines').select('*').eq('u_id', id).maybeSingle();
   if (error) throw error;
   return data;
 };
@@ -112,7 +112,7 @@ export const getMachineSlots = async (machineUId) => {
 };
 export const updateMachineQrCode = async (machineId, qrPath) => {
   const { data, error } = await supabase
-    .from('machine')
+    .from('machines')
     .update({ machine_qrcode: qrPath, updated_at: new Date().toISOString() })
     .eq('u_id', machineId)
     .select()

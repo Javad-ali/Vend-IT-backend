@@ -10,7 +10,7 @@ export const getDashboardMetrics = async () => {
     supabase.from('users').select('id', { head: true, count: 'exact' }).eq('status', 1),
     sumPayments(),
     supabase.from('payments').select('id', { head: true, count: 'exact' }),
-    supabase.from('machine').select('u_id', { head: true, count: 'exact' })
+    supabase.from('machines').select('u_id', { head: true, count: 'exact' })
   ]);
   return {
     totalUsers: totalUsers.count ?? 0,
@@ -140,7 +140,7 @@ export const listMachines = async (params?: {
   const offset = (page - 1) * limit;
 
   let query = supabase
-    .from('machine')
+    .from('machines')
     .select(
       `u_id,
        machine_tag,
@@ -201,7 +201,7 @@ export const listMachineProducts = async (machineUId) => {
 };
 export const getProduct = async (productUId) => {
   const { data, error } = await supabase
-    .from('product')
+    .from('products')
     .select(
       `
       product_u_id,

@@ -10,7 +10,7 @@ export const ensureCategories = async (products) => {
   let categoryMap = new Map();
   if (names.length) {
     const { data, error } = await supabase
-      .from('category')
+      .from('categories')
       .upsert(
         names.map((name) => ({ category_name: name })),
         { onConflict: 'category_name' }
@@ -60,11 +60,11 @@ export const upsertRemoteProducts = async (products) => {
       updated_at: product.updated_at ?? product.created_at ?? new Date().toISOString()
     };
   });
-  const { error } = await supabase.from('product').upsert(payload, { onConflict: 'product_u_id' });
+  const { error } = await supabase.from('products').upsert(payload, { onConflict: 'product_u_id' });
   if (error) throw error;
   if (allCategoryId) {
     const { error: setAllCategoryError } = await supabase
-      .from('product')
+      .from('products')
       .update({ category_id: allCategoryId })
       .is('category_id', null);
     if (setAllCategoryError) throw setAllCategoryError;
@@ -79,20 +79,20 @@ export const listCategoriesForMachine = async (machineUId) => {
   const productIds = [...new Set(slots.map((slot) => slot.product_u_id).filter(Boolean))];
   if (!productIds.length) return [];
   const { data: products, error: productErr } = await supabase
-    .from('product')
+    .from('products')
     .select('category_id')
     .in('product_u_id', productIds);
   if (productErr) throw productErr;
   const categoryIds = [...new Set(products.map((p) => p.category_id).filter(Boolean))];
   if (!categoryIds.length) return [];
   const { data: categories, error: categoryErr } = await supabase
-    .from('category')
+    .from('categories')
     .select('id, category_name, description')
     .in('id', categoryIds);
   if (categoryErr) throw categoryErr;
   categories.sort((a, b) => a.category_name.localeCompare(b.category_name));
   const { data: defaultCat } = await supabase
-    .from('category')
+    .from('categories')
     .select('id, category_name, description')
     .eq('category_name', 'All')
     .maybeSingle();
@@ -133,7 +133,7 @@ export const listProductsForMachine = async (machineUId) => {
 };
 export const getProductById = async (productId) => {
   const { data, error } = await supabase
-    .from('product')
+    .from('products')
     .select(
       `
       product_u_id,
@@ -160,7 +160,7 @@ export const getProductById = async (productId) => {
 export const getProductsByIds = async (productIds) => {
   if (!productIds.length) return [];
   const { data, error } = await supabase
-    .from('product')
+    .from('products')
     .select('product_u_id, unit_price, metadata')
     .in('product_u_id', productIds);
   if (error) throw error;
@@ -168,7 +168,7 @@ export const getProductsByIds = async (productIds) => {
 };
 const ensureAllCategory = async () => {
   const { data, error } = await supabase
-    .from('category')
+    .from('categories')
     .upsert({ category_name: 'All', description: 'All products' }, { onConflict: 'category_name' })
     .select()
     .maybeSingle();

@@ -24,7 +24,7 @@ export const updateAdminProfileInDb = async (id, payload) => {
 };
 export const listCategories = async () => {
   const { data, error } = await supabase
-    .from('category')
+    .from('categories')
     .select('id, category_name, description, icon_path, created_at')
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -32,7 +32,7 @@ export const listCategories = async () => {
 };
 export const createCategory = async (payload) => {
   const { data, error } = await supabase
-    .from('category')
+    .from('categories')
     .insert({
       category_name: payload.name,
       description: payload.description ?? null,
@@ -47,7 +47,7 @@ export const createCategory = async (payload) => {
 };
 export const getCategoryById = async (id) => {
   const { data, error } = await supabase
-    .from('category')
+    .from('categories')
     .select('id, category_name, description, icon_path')
     .eq('id', id)
     .maybeSingle();
@@ -56,7 +56,7 @@ export const getCategoryById = async (id) => {
 };
 export const updateCategory = async (id, payload) => {
   const { data, error } = await supabase
-    .from('category')
+    .from('categories')
     .update({
       category_name: payload.name,
       description: payload.description ?? null,

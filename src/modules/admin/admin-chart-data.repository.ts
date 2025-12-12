@@ -80,7 +80,7 @@ export const getUserGrowthChartData = async (months: number = 6) => {
 
 export const getMachineStatusChartData = async () => {
   const { data, error } = await supabase
-    .from('machine')
+    .from('machines')
     .select('machine_operation_state');
 
   if (error) throw error;
