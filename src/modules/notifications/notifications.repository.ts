@@ -5,7 +5,6 @@ export const createNotification = async (payload) => {
     .insert({
       title: payload.title ?? null,
       body: payload.body ?? null,
-      status: payload.status ?? '0',
       type: payload.type ?? null,
       data: payload.data ?? null,
       sender_id: payload.senderId ?? null,
