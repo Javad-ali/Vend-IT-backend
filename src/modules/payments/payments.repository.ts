@@ -317,7 +317,7 @@ export const listOrderHistory = async (userId) => {
           product_image_url
         )
       ),
-      rating:ratings (
+      rating:ratings!payment_id (
         rating,
         emoji,
         comment
