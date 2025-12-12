@@ -175,11 +175,11 @@ export const incrementLoyaltyBalance = async (userId, points) => {
 export const getLoyaltyBalance = async (userId) => {
   const { data, error } = await supabase
     .from('user_loyalty_points')
-    .select('points')
+    .select('points_balance')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw error;
-  const value = Number(data?.points ?? 0);
+  const value = Number(data?.points_balance ?? 0);
   return Number.isFinite(value) ? value : 0;
 };
 export const listPaymentHistory = async (userId) => {
