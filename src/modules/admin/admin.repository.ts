@@ -103,7 +103,7 @@ export const getUserProfile = async (userId) => {
        status,
        created_at,
        wallet:wallet(balance),
-       loyalty:user_loyality_points(points)`
+       loyalty:user_loyalty_points(points)`
     )
     .eq('id', userId)
     .maybeSingle();

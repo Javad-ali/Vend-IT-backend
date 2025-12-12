@@ -51,7 +51,7 @@ export const getReferralStatsForInviter = async (inviterUserId) => {
   let total = rows.length;
   let rewarded = rows.filter((row) => row.status === 'rewarded').length;
   const { data: loyaltyRows, error: loyaltyError } = await supabase
-    .from('loyality_points')
+    .from('loyalty_points')
     .select('points')
     .eq('user_id', inviterUserId)
     .eq('reason', 'referral_inviter');

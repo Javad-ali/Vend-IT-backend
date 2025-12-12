@@ -153,7 +153,7 @@ export const setDispensedQuantity = async (paymentId, productUId, qty) => {
   if (error) throw error;
 };
 export const createLoyaltyEntry = async (payload) => {
-  const { error } = await supabase.from('loyality_points').insert({
+  const { error } = await supabase.from('loyalty_points').insert({
     user_id: payload.userId,
     payment_id: payload.paymentId ?? null,
     points: payload.points,
@@ -174,7 +174,7 @@ export const incrementLoyaltyBalance = async (userId, points) => {
 };
 export const getLoyaltyBalance = async (userId) => {
   const { data, error } = await supabase
-    .from('user_loyality_points')
+    .from('user_loyalty_points')
     .select('points')
     .eq('user_id', userId)
     .maybeSingle();
@@ -332,7 +332,7 @@ export const listOrderHistory = async (userId) => {
 };
 export const listLoyaltyHistory = async (userId) => {
   const { data, error } = await supabase
-    .from('loyality_points')
+    .from('loyalty_points')
     .select(
       `
       points,
