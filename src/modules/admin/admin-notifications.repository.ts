@@ -109,7 +109,7 @@ export const listNotifications = async (params?: {
   // Read from user notifications table
   let query = supabase
     .from('notifications')
-    .select('id, title, body, is_read, status, type, data, payment_id, created_at, receiver_id, sender_id', { count: 'exact' })
+    .select('id, title, body, is_read, type, data, payment_id, created_at, receiver_id, sender_id', { count: 'exact' })
     .order('created_at', { ascending: false });
 
   if (params?.unread_only) {
@@ -133,7 +133,7 @@ export const listNotifications = async (params?: {
     title: n.title || 'Notification',
     message: n.body || '',
     type: n.type || 'info',
-    read: n.is_read || false,
+    read: Boolean(n.is_read),
     link: n.payment_id ? `/orders/${n.payment_id}` : undefined,
     created_at: n.created_at
   }));
