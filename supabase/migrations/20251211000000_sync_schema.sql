@@ -107,20 +107,22 @@ CREATE INDEX IF NOT EXISTS idx_user_loyalty_points_user ON user_loyalty_points(u
 -- STEP 7: CREATE MISSING AUDIT_LOGS TABLE
 -- ============================================
 
+-- Note: This table may already exist from 20251205000000_create_audit_logs.sql
+-- Use IF NOT EXISTS to avoid conflict
 CREATE TABLE IF NOT EXISTS audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    admin_id UUID REFERENCES admins(id) ON DELETE SET NULL,
     action VARCHAR(100) NOT NULL,
-    resource_type VARCHAR(100),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    admin_id BIGINT REFERENCES admins(id) ON DELETE SET NULL,
+    resource_type VARCHAR(50) NOT NULL,
     resource_id VARCHAR(255),
-    description TEXT,
-    ip_address VARCHAR(50),
+    details JSONB,
+    ip_address INET,
     user_agent TEXT,
-    changes JSONB,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Create indexes
+-- Create indexes (IF NOT EXISTS)
 CREATE INDEX IF NOT EXISTS idx_audit_logs_admin ON audit_logs(admin_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
