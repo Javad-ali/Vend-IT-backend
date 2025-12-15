@@ -44,10 +44,17 @@ const getClientInfo = (req?: Request) => {
 export const auditLog = async (entry: AuditLogEntry, req?: Request): Promise<void> => {
   const { ipAddress, userAgent } = getClientInfo(req);
 
+  // Convert adminId to number for BIGINT column
+  let adminIdNum: number | null = null;
+  if (entry.adminId) {
+    const parsed = parseInt(entry.adminId, 10);
+    adminIdNum = isNaN(parsed) ? null : parsed;
+  }
+
   const logEntry = {
     action: entry.action,
     user_id: entry.userId ?? null,
-    admin_id: entry.adminId ?? null,
+    admin_id: adminIdNum,
     resource_type: entry.resourceType,
     resource_id: entry.resourceId ?? null,
     details: entry.details ?? null,
@@ -74,10 +81,12 @@ export const auditLog = async (entry: AuditLogEntry, req?: Request): Promise<voi
   try {
     const { error } = await supabase.from('audit_logs').insert(logEntry);
     if (error) {
-      logger.warn({ error, entry: logEntry }, 'Failed to persist audit log');
+      logger.error({ error, entry: logEntry }, 'Failed to persist audit log');
+    } else {
+      logger.debug({ entry: logEntry }, 'Audit log persisted successfully');
     }
   } catch (err) {
-    logger.warn({ err, entry: logEntry }, 'Audit log database error');
+    logger.error({ err, entry: logEntry }, 'Audit log database error');
   }
 };
 
@@ -184,13 +193,13 @@ export const audit = {
         adminId,
         resourceType: 'admin',
         resourceId: adminId,
-        details: { email }
+        details: { email, admin_name: email.split('@')[0] } // Use email prefix as fallback name
       },
       req
     ),
 
   adminLogout: (adminId: string, req?: Request) =>
-    auditLog({ action: 'admin.logout', adminId, resourceType: 'admin', resourceId: adminId }, req),
+    auditLog({ action: 'admin.logout', adminId, resourceType: 'admin', resourceId: adminId, details: { admin_name: 'Admin' } }, req),
 
   adminAction: (
     adminId: string,
@@ -198,7 +207,7 @@ export const audit = {
     resourceId: string,
     details?: Record<string, unknown>,
     req?: Request
-  ) => auditLog({ action: 'admin.action', adminId, resourceType, resourceId, details }, req),
+  ) => auditLog({ action: 'admin.action', adminId, resourceType, resourceId, details: { admin_name: 'Admin', ...details } }, req),
 
   // Machine actions
   machineSynced: (count: number, req?: Request) =>
