@@ -472,7 +472,7 @@ export const getWalletHistory = async (userId) => {
     {
       transaction: transactions,
       balance: walletRow?.balance ?? 0,
-      loyality_point: loyaltyPoints,
+      loyalty_point: loyaltyPoints,
       id: walletRow?.id ?? null,
       user_id: userId,
       charge_id: null,
