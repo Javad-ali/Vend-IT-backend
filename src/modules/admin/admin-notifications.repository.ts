@@ -109,7 +109,7 @@ export const listNotifications = async (params?: {
   // Read from user notifications table
   let query = supabase
     .from('notifications')
-    .select('id, title, body, is_read, type, data, payment_id, created_at, receiver_id, sender_id', { count: 'exact' })
+    .select('id, title, body, is_read, type, data, payment_id, created_at, receiver_id', { count: 'exact' })
     .order('created_at', { ascending: false });
 
   if (params?.unread_only) {
@@ -121,22 +121,49 @@ export const listNotifications = async (params?: {
   const { data, error, count } = await query;
   if (error) throw error;
 
+  // Get user names for all receiver_ids
+  const receiverIds = [...new Set((data ?? []).map((n: any) => n.receiver_id).filter(Boolean))];
+  let userMap: Record<string, string> = {};
+  
+  if (receiverIds.length > 0) {
+    const { data: users } = await supabase
+      .from('users')
+      .select('id, first_name, last_name, email')
+      .in('id', receiverIds);
+    
+    userMap = (users ?? []).reduce((acc: Record<string, string>, u: any) => {
+      const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+      acc[u.id] = fullName || u.email || 'A user';
+      return acc;
+    }, {});
+  }
+
   // Get unread count
   const { count: unreadCount } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
     .eq('is_read', false);
 
-  // Transform to match expected format
-  const notifications = (data ?? []).map((n: any) => ({
-    id: n.id,
-    title: n.title || 'Notification',
-    message: n.body || '',
-    type: n.type || 'info',
-    read: Boolean(n.is_read),
-    link: n.payment_id ? `/orders/${n.payment_id}` : undefined,
-    created_at: n.created_at
-  }));
+  // Transform to match expected format with admin-friendly messages
+  const notifications = (data ?? []).map((n: any) => {
+    const userName = userMap[n.receiver_id] || 'A user';
+    // Transform user-centric message to admin-centric
+    let message = n.body || '';
+    if (message.startsWith('Your ')) {
+      message = message.replace('Your ', `${userName}'s `);
+    }
+    
+    return {
+      id: n.id,
+      title: n.title || 'Notification',
+      message,
+      type: n.type || 'info',
+      read: Boolean(n.is_read),
+      link: n.payment_id ? `/orders/${n.payment_id}` : undefined,
+      created_at: n.created_at,
+      user_name: userName
+    };
+  });
 
   return {
     data: notifications,

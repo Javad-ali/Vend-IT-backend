@@ -9,7 +9,7 @@ import {
 export const getNotificationsApi = async (req: Request, res: Response) => {
   try {
     const { page, limit, unread_only } = req.query;
-    const admin_id = (req as any).admin?.id; // From auth middleware
+    const admin_id = (req as any).admin?.adminId; // From auth middleware (JWT has adminId)
     
     const notifications = await getNotifications({
       page: page ? parseInt(page as string) : undefined,
@@ -41,7 +41,7 @@ export const markAsReadApi = async (req: Request, res: Response) => {
 
 export const markAllAsReadApi = async (req: Request, res: Response) => {
   try {
-    const admin_id = (req as any).admin?.id;
+    const admin_id = (req as any).admin?.adminId; // JWT has adminId, not id
     if (!admin_id) {
       return res.status(401).json(errorResponse(401, 'Unauthorized'));
     }
