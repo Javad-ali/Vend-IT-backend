@@ -174,7 +174,7 @@ export const incrementLoyaltyBalance = async (userId, points) => {
 };
 export const getLoyaltyBalance = async (userId) => {
   const { data, error } = await supabase
-    .from('user_loyalty_points')
+    .from('user_loyality_points')
     .select('points_balance')
     .eq('user_id', userId)
     .maybeSingle();
