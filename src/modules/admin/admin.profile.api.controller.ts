@@ -107,7 +107,7 @@ export const createCategoryApi = async (req: Request, res: Response) => {
       description: req.body.description,
       file: req.file ?? undefined
     });
-    
+
     // Log category creation
     await audit.adminAction(
       admin?.adminId,
@@ -116,7 +116,7 @@ export const createCategoryApi = async (req: Request, res: Response) => {
       { action: 'created', name: req.body.name, adminName: admin?.name },
       req
     );
-    
+
     return res.status(201).json(apiSuccess({ category }, 'Category created successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
@@ -137,7 +137,7 @@ export const updateCategoryApi = async (req: Request, res: Response) => {
       description: req.body.description,
       file: req.file ?? undefined
     });
-    
+
     // Log category update
     await audit.adminAction(
       admin?.adminId,
@@ -146,7 +146,7 @@ export const updateCategoryApi = async (req: Request, res: Response) => {
       { action: 'updated', name: req.body.name, adminName: admin?.name },
       req
     );
-    
+
     return res.json(apiSuccess({ category }, 'Category updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;

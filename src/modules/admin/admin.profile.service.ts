@@ -91,9 +91,9 @@ export const getAdminCategoryProducts = async (categoryId: string) => {
     .select('id, product_name, price, stock, status')
     .eq('category_id', categoryId)
     .order('created_at', { ascending: false });
-  
+
   if (error) throw error;
-  
+
   return (data ?? []).map((p) => ({
     id: p.id,
     name: p.product_name,

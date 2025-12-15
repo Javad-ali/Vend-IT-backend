@@ -71,10 +71,14 @@ export const deleteUserApi = async (req: Request, res: Response) => {
   try {
     const admin = (req as any).admin;
     await deleteAdminUser(req.params.userId);
-    
+
     // Log user deletion
-    await audit.userDeleted(req.params.userId, { deletedBy: admin?.adminId, adminName: admin?.name }, req);
-    
+    await audit.userDeleted(
+      req.params.userId,
+      { deletedBy: admin?.adminId, adminName: admin?.name },
+      req
+    );
+
     return res.json(apiSuccess(null, 'User deleted successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
@@ -97,14 +101,18 @@ export const suspendUserApi = async (req: Request, res: Response) => {
 
     await toggleUserStatus(req.params.userId, status);
     const message = status === 1 ? 'User unsuspended successfully' : 'User suspended successfully';
-    
+
     // Log user status change
     await audit.userUpdated(
-      req.params.userId, 
-      { action: status === 1 ? 'unsuspended' : 'suspended', updatedBy: admin?.adminId, adminName: admin?.name },
+      req.params.userId,
+      {
+        action: status === 1 ? 'unsuspended' : 'suspended',
+        updatedBy: admin?.adminId,
+        adminName: admin?.name
+      },
       req
     );
-    
+
     return res.json(apiSuccess(null, message));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;

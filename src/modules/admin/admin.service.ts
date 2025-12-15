@@ -141,7 +141,9 @@ export const getAdminOrders = async (params?: {
     orders: result.data.map((order) => {
       const machine = unwrapSingle(order.machine);
       const user = unwrapSingle(order.user);
-      const userName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : 'Unknown';
+      const userName = user
+        ? [user.first_name, user.last_name].filter(Boolean).join(' ')
+        : 'Unknown';
 
       return {
         order_id: order.id,

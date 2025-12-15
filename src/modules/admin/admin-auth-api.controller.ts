@@ -111,7 +111,13 @@ export const changePasswordApi = async (req: Request, res: Response) => {
     await changeAdminPassword(admin.adminId, currentPassword, newPassword);
 
     // Log password change
-    await audit.adminAction(admin.adminId, 'admin', admin.adminId, { action: 'password_changed' }, req);
+    await audit.adminAction(
+      admin.adminId,
+      'admin',
+      admin.adminId,
+      { action: 'password_changed' },
+      req
+    );
 
     return res.json(apiSuccess(null, 'Password changed successfully'));
   } catch (error: any) {

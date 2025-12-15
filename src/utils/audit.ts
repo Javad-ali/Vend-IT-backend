@@ -199,7 +199,16 @@ export const audit = {
     ),
 
   adminLogout: (adminId: string, req?: Request) =>
-    auditLog({ action: 'admin.logout', adminId, resourceType: 'admin', resourceId: adminId, details: { admin_name: 'Admin' } }, req),
+    auditLog(
+      {
+        action: 'admin.logout',
+        adminId,
+        resourceType: 'admin',
+        resourceId: adminId,
+        details: { admin_name: 'Admin' }
+      },
+      req
+    ),
 
   adminAction: (
     adminId: string,
@@ -207,7 +216,17 @@ export const audit = {
     resourceId: string,
     details?: Record<string, unknown>,
     req?: Request
-  ) => auditLog({ action: 'admin.action', adminId, resourceType, resourceId, details: { admin_name: 'Admin', ...details } }, req),
+  ) =>
+    auditLog(
+      {
+        action: 'admin.action',
+        adminId,
+        resourceType,
+        resourceId,
+        details: { admin_name: 'Admin', ...details }
+      },
+      req
+    ),
 
   // Machine actions
   machineSynced: (count: number, req?: Request) =>

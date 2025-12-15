@@ -1,8 +1,4 @@
-import {
-  listNotifications,
-  markAsRead,
-  markAllAsRead
-} from './admin-notifications.repository.js';
+import { listNotifications, markAsRead, markAllAsRead } from './admin-notifications.repository.js';
 
 export const getNotifications = async (params?: {
   page?: number;

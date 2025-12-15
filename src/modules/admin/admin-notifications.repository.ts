@@ -91,8 +91,6 @@
 //   return data;
 // };
 
-
-
 import { supabase } from '../../libs/supabase.js';
 
 // List USER notifications for admin dashboard viewing
@@ -109,7 +107,9 @@ export const listNotifications = async (params?: {
   // Read from user notifications table
   let query = supabase
     .from('notifications')
-    .select('id, title, body, is_read, type, data, payment_id, created_at, receiver_id', { count: 'exact' })
+    .select('id, title, body, is_read, type, data, payment_id, created_at, receiver_id', {
+      count: 'exact'
+    })
     .order('created_at', { ascending: false });
 
   if (params?.unread_only) {
@@ -124,13 +124,13 @@ export const listNotifications = async (params?: {
   // Get user names for all receiver_ids
   const receiverIds = [...new Set((data ?? []).map((n: any) => n.receiver_id).filter(Boolean))];
   let userMap: Record<string, string> = {};
-  
+
   if (receiverIds.length > 0) {
     const { data: users } = await supabase
       .from('users')
       .select('id, first_name, last_name, email')
       .in('id', receiverIds);
-    
+
     userMap = (users ?? []).reduce((acc: Record<string, string>, u: any) => {
       const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
       acc[u.id] = fullName || u.email || 'A user';
@@ -152,7 +152,7 @@ export const listNotifications = async (params?: {
     if (message.startsWith('Your ')) {
       message = message.replace('Your ', `${userName}'s `);
     }
-    
+
     return {
       id: n.id,
       title: n.title || 'Notification',

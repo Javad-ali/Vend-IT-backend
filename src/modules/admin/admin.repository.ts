@@ -30,10 +30,8 @@ export const listUsers = async (params?: {
   const limit = params?.limit || 10;
   const offset = (page - 1) * limit;
 
-  let query = supabase
-    .from('users')
-    .select(
-      `id,
+  let query = supabase.from('users').select(
+    `id,
        first_name,
        last_name,
        email,
@@ -44,8 +42,8 @@ export const listUsers = async (params?: {
        is_otp_verify,
        status,
        created_at`,
-      { count: 'exact' }
-    );
+    { count: 'exact' }
+  );
 
   // Apply filters
   if (params?.status !== undefined) {
@@ -139,10 +137,8 @@ export const listMachines = async (params?: {
   const limit = params?.limit || 10;
   const offset = (page - 1) * limit;
 
-  let query = supabase
-    .from('machines')
-    .select(
-      `u_id,
+  let query = supabase.from('machines').select(
+    `u_id,
        machine_tag,
        location_address,
        machine_image_url,
@@ -150,8 +146,8 @@ export const listMachines = async (params?: {
        last_machine_status,
        machine_qrcode,
        created_at`,
-      { count: 'exact' }
-    );
+    { count: 'exact' }
+  );
 
   if (params?.status) {
     query = query.eq('machine_operation_state', params.status);
@@ -220,19 +216,13 @@ export const getProduct = async (productUId) => {
   if (error) throw error;
   return data;
 };
-export const listProducts = async (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}) => {
+export const listProducts = async (params?: { page?: number; limit?: number; search?: string }) => {
   const page = params?.page || 1;
   const limit = params?.limit || 10;
   const offset = (page - 1) * limit;
 
-  let query = supabase
-    .from('machine_slots')
-    .select(
-      `
+  let query = supabase.from('machine_slots').select(
+    `
       machine:machine_u_id (machine_tag),
       product:product_u_id (
         product_u_id,
@@ -242,13 +232,11 @@ export const listProducts = async (params?: {
       ),
       quantity
     `,
-      { count: 'exact' }
-    );
+    { count: 'exact' }
+  );
 
   if (params?.search) {
-    query = query.or(
-      `product_u_id.ilike.%${params.search}%`
-    );
+    query = query.or(`product_u_id.ilike.%${params.search}%`);
   }
 
   query = query.range(offset, offset + limit - 1);
@@ -276,10 +264,8 @@ export const listOrders = async (params?: {
   const limit = params?.limit || 10;
   const offset = (page - 1) * limit;
 
-  let query = supabase
-    .from('payments')
-    .select(
-      `
+  let query = supabase.from('payments').select(
+    `
       id,
       amount,
       payment_method,
@@ -288,17 +274,15 @@ export const listOrders = async (params?: {
       machine:machine_u_id(machine_tag),
       user:users!payments_user_id_fkey(first_name, last_name)
     `,
-      { count: 'exact' }
-    );
+    { count: 'exact' }
+  );
 
   if (params?.status) {
     query = query.eq('status', params.status);
   }
 
   if (params?.search) {
-    query = query.or(
-      `id.ilike.%${params.search}%`
-    );
+    query = query.or(`id.ilike.%${params.search}%`);
   }
 
   query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });
@@ -355,32 +339,24 @@ export const listOrderProducts = async (orderId) => {
   if (error) throw error;
   return data ?? [];
 };
-export const listFeedback = async (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}) => {
+export const listFeedback = async (params?: { page?: number; limit?: number; search?: string }) => {
   const page = params?.page || 1;
   const limit = params?.limit || 10;
   const offset = (page - 1) * limit;
 
-  let query = supabase
-    .from('contact_us')
-    .select(
-      `
+  let query = supabase.from('contact_us').select(
+    `
       id,
       subject,
       message,
       created_at,
       user:users!contact_us_user_id_fkey(phone_number, email)
     `,
-      { count: 'exact' }
-    );
+    { count: 'exact' }
+  );
 
   if (params?.search) {
-    query = query.or(
-      `message.ilike.%${params.search}%,subject.ilike.%${params.search}%`
-    );
+    query = query.or(`message.ilike.%${params.search}%,subject.ilike.%${params.search}%`);
   }
 
   query = query.range(offset, offset + limit - 1).order('created_at', { ascending: false });

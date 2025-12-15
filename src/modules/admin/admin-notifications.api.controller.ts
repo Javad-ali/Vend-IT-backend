@@ -10,7 +10,7 @@ export const getNotificationsApi = async (req: Request, res: Response) => {
   try {
     const { page, limit, unread_only } = req.query;
     const admin_id = (req as any).admin?.adminId; // From auth middleware (JWT has adminId)
-    
+
     const notifications = await getNotifications({
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,

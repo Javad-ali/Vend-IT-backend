@@ -56,7 +56,7 @@ export const createCampaignApi = async (req: Request, res: Response) => {
       endAt: req.body.endAt,
       file: req.file ?? undefined
     });
-    
+
     // Log campaign creation
     await audit.adminAction(
       admin?.adminId,
@@ -65,7 +65,7 @@ export const createCampaignApi = async (req: Request, res: Response) => {
       { action: 'created', title: req.body.title, adminName: admin?.name },
       req
     );
-    
+
     return res.status(201).json(apiSuccess({ campaign }, 'Campaign created successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
@@ -88,7 +88,7 @@ export const updateCampaignApi = async (req: Request, res: Response) => {
       endAt: req.body.endAt,
       file: req.file ?? undefined
     });
-    
+
     // Log campaign update
     await audit.adminAction(
       admin?.adminId,
@@ -97,7 +97,7 @@ export const updateCampaignApi = async (req: Request, res: Response) => {
       { action: 'updated', title: req.body.title, adminName: admin?.name },
       req
     );
-    
+
     return res.json(apiSuccess({ campaign }, 'Campaign updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
@@ -114,7 +114,7 @@ export const deleteCampaignApi = async (req: Request, res: Response) => {
   try {
     const admin = (req as any).admin;
     await removeCampaign(req.params.campaignId);
-    
+
     // Log campaign deletion
     await audit.adminAction(
       admin?.adminId,
@@ -123,7 +123,7 @@ export const deleteCampaignApi = async (req: Request, res: Response) => {
       { action: 'deleted', adminName: admin?.name },
       req
     );
-    
+
     return res.json(apiSuccess(null, 'Campaign deleted successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;

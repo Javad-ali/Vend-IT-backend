@@ -58,14 +58,16 @@ export const createActivityLog = async (log: {
 }) => {
   const { data, error } = await supabase
     .from('audit_logs')
-    .insert([{
-      admin_id: log.admin_id,
-      action: `${log.entity}.${log.action}`,
-      resource_type: log.entity,
-      resource_id: log.entity_id,
-      details: { admin_name: log.admin_name, message: log.details },
-      ip_address: log.ip_address
-    }])
+    .insert([
+      {
+        admin_id: log.admin_id,
+        action: `${log.entity}.${log.action}`,
+        resource_type: log.entity,
+        resource_id: log.entity_id,
+        details: { admin_name: log.admin_name, message: log.details },
+        ip_address: log.ip_address
+      }
+    ])
     .select()
     .single();
 
