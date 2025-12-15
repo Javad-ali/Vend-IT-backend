@@ -220,16 +220,15 @@ export const loginUser = async (input) => {
     throw new apiError(400, 'Country code missing for user');
   }
   const { otp, expose } = await queueOtpForPhone({ ...input, countryCode });
+  
+  // Only update OTP, device info, and timestamp - preserve all other user data
   const updated = await partialUpdateUser(existing.id, {
-    ...updateUserCommonFields(
-      existing,
-      { ...input, countryCode },
-      {
-        otp,
-        status: existing.status ?? 1
-      }
-    )
+    otp,
+    deviceType: input.deviceType ?? existing.deviceType ?? null,
+    deviceToken: input.deviceToken ?? existing.deviceToken ?? null,
+    updatedAt: new Date().toISOString()
   });
+  
   if (!updated) throw new apiError(500, 'Login failed');
   const tokens = issueTokens(updated.id, updated.email);
   return ok(buildAuthResponse(updated, tokens, expose ? otp : null), 'OTP sent');
