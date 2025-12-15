@@ -21,7 +21,10 @@ const buildImageUrl = (imagePath) => {
 };
 export const fetchLatestCampaign = async (userId) => {
   const campaign = await getLatestCampaign(new Date());
-  if (!campaign) throw new apiError(404, 'Campaign not found');
+  if (!campaign) {
+    // Return empty response instead of 404 when no campaign exists
+    return ok(null, 'No active campaign found');
+  }
   try {
     await recordCampaignView(userId, campaign.id);
   } catch (error) {
@@ -62,8 +65,8 @@ export const createCampaignWithMedia = async (payload) => {
   const campaign = await createCampaign({
     title: payload.title,
     description: payload.description ?? null,
-    start_at: payload.startAt,
-    end_at: payload.endAt,
+    start_date: payload.startAt,
+    end_date: payload.endAt,
     image_path: imagePath,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -83,8 +86,8 @@ export const updateCampaignWithMedia = async (id, payload) => {
   const updated = await updateCampaign(id, {
     title: payload.title ?? existing.title,
     description: payload.description ?? existing.description,
-    start_at: payload.startAt ?? existing.start_at,
-    end_at: payload.endAt ?? existing.end_at,
+    start_date: payload.startAt ?? existing.start_date,
+    end_date: payload.endAt ?? existing.end_date,
     image_path: imagePath ?? existing.image_path,
     updated_at: new Date().toISOString()
   });

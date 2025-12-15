@@ -3,9 +3,9 @@ export const getLatestCampaign = async (now) => {
   const { data, error } = await supabase
     .from('campaigns')
     .select('*')
-    .lte('start_at', now.toISOString())
-    .gte('end_at', now.toISOString())
-    .order('start_at', { ascending: false })
+    .lte('start_date', now.toISOString())
+    .gte('end_date', now.toISOString())
+    .order('start_date', { ascending: false })
     .limit(1)
     .maybeSingle();
   if (error) throw error;
@@ -21,7 +21,7 @@ export const listCampaigns = async () => {
   const { data, error } = await supabase
     .from('campaigns')
     .select('*')
-    .order('start_at', { ascending: false });
+    .order('start_date', { ascending: false });
   if (error) throw error;
   return data ?? [];
 };
