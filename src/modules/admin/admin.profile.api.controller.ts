@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import multer from 'multer';
 import { apiSuccess, apiError, errorResponse } from '../../utils/response.js';
+import { audit } from '../../utils/audit.js';
 import {
   createAdminCategory,
   getAdminCategories,
@@ -100,11 +101,22 @@ export const getCategoryProductsApi = async (req: Request, res: Response) => {
  */
 export const createCategoryApi = async (req: Request, res: Response) => {
   try {
+    const admin = (req as any).admin;
     const category = await createAdminCategory({
       name: req.body.name,
       description: req.body.description,
       file: req.file ?? undefined
     });
+    
+    // Log category creation
+    await audit.adminAction(
+      admin?.adminId,
+      'category',
+      category?.data?.id || 'new',
+      { action: 'created', name: req.body.name, adminName: admin?.name },
+      req
+    );
+    
     return res.status(201).json(apiSuccess({ category }, 'Category created successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;
@@ -119,11 +131,22 @@ export const createCategoryApi = async (req: Request, res: Response) => {
  */
 export const updateCategoryApi = async (req: Request, res: Response) => {
   try {
+    const admin = (req as any).admin;
     const category = await updateAdminCategory(req.params.categoryId, {
       name: req.body.name,
       description: req.body.description,
       file: req.file ?? undefined
     });
+    
+    // Log category update
+    await audit.adminAction(
+      admin?.adminId,
+      'category',
+      req.params.categoryId,
+      { action: 'updated', name: req.body.name, adminName: admin?.name },
+      req
+    );
+    
     return res.json(apiSuccess({ category }, 'Category updated successfully'));
   } catch (error: any) {
     const statusCode = error.statusCode || 500;

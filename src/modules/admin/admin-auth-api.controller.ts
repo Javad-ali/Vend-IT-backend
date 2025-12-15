@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { getConfig } from '../../config/env.js';
 import { authenticateAdmin, changeAdminPassword } from './admin-auth.service.js';
 import { apiError, apiSuccess, errorResponse } from '../../utils/response.js';
+import { audit } from '../../utils/audit.js';
 import type { Request, Response } from 'express';
 
 const config = getConfig();
@@ -28,6 +29,9 @@ export const loginApi = async (req: Request, res: Response) => {
 
     const admin = await authenticateAdmin(email, password);
     const token = generateAdminToken(admin.id, admin.email, admin.name);
+
+    // Log admin login
+    await audit.adminLogin(admin.id, admin.email, req);
 
     return res.json(
       apiSuccess(
@@ -80,7 +84,11 @@ export const getMeApi = async (req: Request, res: Response) => {
 /**
  * API: Admin logout - client should delete token
  */
-export const logoutApi = async (_req: Request, res: Response) => {
+export const logoutApi = async (req: Request, res: Response) => {
+  const admin = (req as any).admin;
+  if (admin?.adminId) {
+    await audit.adminLogout(admin.adminId, req);
+  }
   return res.json(apiSuccess(null, 'Logout successful'));
 };
 
@@ -101,6 +109,9 @@ export const changePasswordApi = async (req: Request, res: Response) => {
     }
 
     await changeAdminPassword(admin.adminId, currentPassword, newPassword);
+
+    // Log password change
+    await audit.adminAction(admin.adminId, 'admin', admin.adminId, { action: 'password_changed' }, req);
 
     return res.json(apiSuccess(null, 'Password changed successfully'));
   } catch (error: any) {
