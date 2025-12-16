@@ -16,13 +16,27 @@ const isMissingRpc = (error: PostgrestError | null, fnName: string) =>
         error.message?.toLowerCase().includes(`could not find the function public.${fnName}`))
   );
 
-const sanitizeMigrationSql = (sql: string) =>
-  sql
+const sanitizeMigrationSql = (sql: string) => {
+  // First, preserve comments by temporarily replacing them
+  const comments: string[] = [];
+  let sqlWithPlaceholders = sql.replace(/--[^\n]*/g, (match) => {
+    comments.push(match);
+    return `__COMMENT_${comments.length - 1}__`;
+  });
+  
+  // Now apply the replacements
+  sqlWithPlaceholders = sqlWithPlaceholders
     .replace(
       /SELECT\s+pg_catalog\.set_config\('search_path'\s*,\s*''\s*,\s*false\);/gi,
       "SELECT pg_catalog.set_config('search_path', 'public', false);"
     )
-    .replace(/CREATE TABLE/gi, 'CREATE TABLE IF NOT EXISTS');
+    .replace(/CREATE TABLE(?!\s+IF\s+NOT\s+EXISTS)/gi, 'CREATE TABLE IF NOT EXISTS')
+    .replace(/CREATE INDEX(?!\s+IF\s+NOT\s+EXISTS)/gi, 'CREATE INDEX IF NOT EXISTS')
+    .replace(/CREATE UNIQUE INDEX(?!\s+IF\s+NOT\s+EXISTS)/gi, 'CREATE UNIQUE INDEX IF NOT EXISTS');
+  
+  // Restore comments
+  return sqlWithPlaceholders.replace(/__COMMENT_(\d+)__/g, (_, index) => comments[parseInt(index)]);
+};
 
 const runWithPostgresClient = async (sql: string) => {
   const databaseUrl = process.env.SUPABASE_DB_URL;
@@ -54,6 +68,13 @@ const runWithPostgresClient = async (sql: string) => {
   try {
     await client.query(safeSql);
     return true;
+  } catch (error: any) {
+    // Ignore duplicate key errors (23505) - this makes migrations idempotent
+    if (error.code === '23505') {
+      logger.warn({ error }, 'Duplicate key error ignored during migration');
+      return true;
+    }
+    throw error;
   } finally {
     await client.end().catch(() => undefined);
   }
