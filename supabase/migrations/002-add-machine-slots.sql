@@ -17,16 +17,23 @@ CREATE INDEX IF NOT EXISTS idx_machine_slots_machine_u_id ON machine_slots(machi
 CREATE INDEX IF NOT EXISTS idx_machine_slots_product_u_id ON machine_slots(product_u_id);
 
 -- Migrate existing product data to machine_slots (if product table has data)
-INSERT INTO machine_slots (machine_u_id, slot_number, product_u_id, quantity, max_quantity, price)
-SELECT 
-    m.u_id as machine_u_id,
-    ROW_NUMBER() OVER (PARTITION BY p.machine_id ORDER BY p.id) as slot_number,
-    p.product_u_id,
-    p.quantity,
-    p.max_quantity,
-    p.unit_price as price
-FROM product p
-JOIN machine m ON p.machine_id = m.id
-WHERE p.product_u_id IS NOT NULL
-ON CONFLICT (machine_u_id, slot_number) DO NOTHING;
+-- Only run if the source tables exist
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'product') 
+       AND EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'machine') THEN
+        INSERT INTO machine_slots (machine_u_id, slot_number, product_u_id, quantity, max_quantity, price)
+        SELECT 
+            m.u_id as machine_u_id,
+            ROW_NUMBER() OVER (PARTITION BY p.machine_id ORDER BY p.id) as slot_number,
+            p.product_u_id,
+            p.quantity,
+            p.max_quantity,
+            p.unit_price as price
+        FROM product p
+        JOIN machine m ON p.machine_id = m.id
+        WHERE p.product_u_id IS NOT NULL
+        ON CONFLICT (machine_u_id, slot_number) DO NOTHING;
+    END IF;
+END $$;
 
