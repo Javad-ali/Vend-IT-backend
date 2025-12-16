@@ -86,12 +86,43 @@ const readMigrationFiles = async () => {
   });
 
   return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.sql') && !entry.name.endsWith('.backup'))
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.sql') && !entry.name.endsWith('.backup') && !entry.name.endsWith('.applied'))
     .map((entry) => ({
       name: entry.name,
-      path: join(MIGRATIONS_DIR, entry.name)
+      path: join(MIGRATIONS_DIR, entry.name),
+      version: entry.name.match(/^(\d+)/)?.[1] || null
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
+};
+
+const getAppliedMigrations = async (supabase: SupabaseClient<any, 'public', any>): Promise<Set<string>> => {
+  try {
+    // Query the Supabase migrations tracking table
+    const databaseUrl = process.env.SUPABASE_DB_URL;
+    if (!databaseUrl) return new Set();
+
+    let Client: typeof import('pg')['Client'];
+    try {
+      ({ Client } = await import('pg'));
+    } catch {
+      return new Set();
+    }
+
+    const client = new Client({
+      connectionString: databaseUrl,
+      ssl: { rejectUnauthorized: false }
+    });
+
+    await client.connect();
+    try {
+      const result = await client.query('SELECT version FROM supabase_migrations.schema_migrations');
+      return new Set(result.rows.map((r: any) => r.version));
+    } finally {
+      await client.end().catch(() => undefined);
+    }
+  } catch {
+    return new Set();
+  }
 };
 
 type ExecuteSqlPayload = { sql_text: string };
@@ -131,15 +162,32 @@ const runSingleMigration = async (
 };
 
 const run = async () => {
-  const files = await readMigrationFiles();
-  if (!files.length) {
+  const allFiles = await readMigrationFiles();
+  if (!allFiles.length) {
     logger.info('No migration files found. Nothing to run.');
     return;
   }
 
-  logger.info({ count: files.length }, 'Found migration files');
-  
   const supabase = createClient(env.supabaseUrl, env.supabaseServiceRoleKey) as SupabaseClient<any, 'public', any>;
+  
+  // Get already applied migrations
+  const appliedVersions = await getAppliedMigrations(supabase);
+  
+  // Filter out already applied migrations
+  const files = allFiles.filter(file => {
+    if (file.version && appliedVersions.has(file.version)) {
+      logger.info({ migration: file.name }, 'Skipping already applied migration');
+      return false;
+    }
+    return true;
+  });
+
+  if (!files.length) {
+    logger.info('All migrations already applied. Nothing to run.');
+    return;
+  }
+
+  logger.info({ count: files.length, skipped: allFiles.length - files.length }, 'Found pending migration files');
 
   let successCount = 0;
   let failedCount = 0;
